@@ -1,0 +1,11 @@
+development:
+  cartodb_username: 'mapismo'
+  users_table: 'application_users_dev'
+
+test:
+  cartodb_username: 'mapismo'
+  users_table: 'application_users_test'
+
+production:
+  cartodb_username: 'mapismo'
+  users_table: 'application_users'

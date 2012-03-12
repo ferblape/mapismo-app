@@ -13,3 +13,5 @@ public/images
 db/schema.rb
 vendor/typekit
 coverage/
+.rvmrc
+.exports
