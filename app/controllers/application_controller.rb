@@ -7,7 +7,8 @@ class ApplicationController < ActionController::Base
 
   def current_user
     if session[:user_id]
-      @current_user ||= User.find(session[:user_id])
+      @current_user ||= User.new({id: session[:user_id], username: session[:username],
+                                  token: session[:token], secret: session[:secret]})
     end
     @current_user
   end

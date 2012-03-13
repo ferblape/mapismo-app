@@ -13,7 +13,7 @@ class SessionsController < ApplicationController
     
     unless user = User.find(session[:user_id])
       user = User.create({
-        id: session[:user_id], username: session[:username], 
+        id: session[:user_id], username: session[:username],
         token: session[:token], secret: session[:secret]
       })
     end
