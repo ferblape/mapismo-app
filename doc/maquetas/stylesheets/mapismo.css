@@ -48,12 +48,12 @@ table {
 }
 
 /* Sprites */
-.popover h2, .social_networks span, .keywords_list .delete {
+.popover h2, .social_networks span, .keywords_list .delete, .location input {
   background: transparent url(../../../app/assets/images/sprites.png) 0 0 no-repeat;
 }
 
 /* Styles */
-body {
+body, input {
   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
   font-size: 12px;
   color: #303030
@@ -174,11 +174,11 @@ a.button:hover, #top_bar a.button:hover {
   font-size: 14px;
   font-weight: bold;
 }
-.keywords input {
+.keywords input, .location input {
   display: block;
   width: 310px;
   font-size: 14px;
-  line-height: 1;
+  line-height: 1.5;
   margin-top: 4px;
 }
 .keywords_list {
@@ -205,4 +205,16 @@ a.button:hover, #top_bar a.button:hover {
   width: 20px;
   height: 20px;
   text-indent: -1000em
+}
+
+/* Where */
+.location {
+  padding: 10px;
+}
+.location input {
+  margin-top: 0;
+  background-color: #FFF;
+  background-position: -28px -146px;
+  padding-left: 18px;
+  width: 292px;
 }
