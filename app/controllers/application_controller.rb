@@ -16,4 +16,10 @@ class ApplicationController < ActionController::Base
     !!current_user
   end
   
+  protected
+  
+  def login_required
+    return true if logged_in?
+    redirect_to login_path and return false
+  end
 end

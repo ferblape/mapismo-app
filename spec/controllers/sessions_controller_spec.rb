@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 describe SessionsController do
-  describe "#create" do
+  describe "POST #create" do
     let(:auth) do
       OmniAuth::AuthHash.new(
         'info' => {
@@ -23,7 +23,8 @@ describe SessionsController do
       request.env['omniauth.auth'] = auth
       
       user = mock()
-      User.expects(:find).with(1).returns(user)
+      user.stubs(:maps).returns([])
+      User.expects(:find).with(1).returns(user).times(2)
       
       post :create
       subject.current_user.should == user
@@ -34,7 +35,8 @@ describe SessionsController do
       request.env['omniauth.auth'] = auth
       
       user = mock()
-      User.expects(:find).with(1).returns(nil)
+      user.stubs(:maps).returns([])
+      User.expects(:find).with(1).times(2).returns(nil).then.returns(user)
       User.expects(:create).with({
         id: 1, username: 'blat', 
         token: 'token', secret: 'secret'

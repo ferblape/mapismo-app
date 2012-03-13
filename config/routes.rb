@@ -5,4 +5,6 @@ MapismoApp::Application.routes.draw do
   match '/auth/:provider/callback', to: 'sessions#create'
   match '/auth/failure',            to: 'sessions#failure'
   get   '/logout',                  to: 'sessions#destroy', as: :logout
+  
+  resources :maps
 end

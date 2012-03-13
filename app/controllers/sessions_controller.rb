@@ -17,8 +17,11 @@ class SessionsController < ApplicationController
         token: session[:token], secret: session[:secret]
       })
     end
-    @current_user = user
-    redirect_to root_path and return
+    if current_user.maps.empty?
+      redirect_to new_map_path and return
+    else
+      redirect_to maps_path and return
+    end
   end
 
   def failure

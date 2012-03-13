@@ -47,6 +47,10 @@ class User
     connection.create_table("mapismo_data", "cartodb_user_id integer, map_id integer")
   end
   
+  def maps
+    []
+  end
+  
   private
   
   def connection
