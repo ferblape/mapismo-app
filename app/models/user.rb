@@ -2,6 +2,8 @@
 
 class User
   
+  attr_reader :id, :username
+  
   def initialize(attributes)
     @id = attributes[:id]
     @username = attributes[:username]
@@ -38,17 +40,19 @@ class User
     end
   end
   
-  def username
-    @username
-  end
-  
   def setup_cartodb_tables!
-    connection.create_table("mapismo_maps", "cartodb_user_id integer, name varchar")
-    connection.create_table("mapismo_data", "cartodb_user_id integer, map_id integer")
+    maps_table_schema = "name varchar, sources varchar, keywords varchar, start_date varchar," + 
+                        "end_date varchar, radius integer, location_name varchar, lat float, lon float"
+    connection.create_table(Mapismo.maps_table, maps_table_schema)
+    connection.create_table(Mapismo.data_table, "cartodb_user_id integer, map_id integer")
   end
   
   def maps
     []
+  end
+  
+  def get_connection
+    connection
   end
   
   private

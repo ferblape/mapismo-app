@@ -1,29 +1,125 @@
 # coding: UTF-8
 
 class Map
-  attr_reader :user_id
+  VALID_SOURCES = %W{ instagram flickr }
   
-  attr_accessor :name, :keywords, :sources, :radius, :start_date,
-                :location_name, :location, :end_date
+  attr_reader :user_id, :keywords, :sources, :radius, 
+              :end_date, :start_date, :lat, :lon
+  
+  attr_accessor :name, :location_name, :id
   
   def initialize(attributes = {})
+    @id = attributes[:id] || nil
     @name = attributes[:name] || ""
+    @location_name = attributes[:location_name] || ""
+    
     if attributes[:user_id]
       @user_id = attributes[:user_id].to_i
     else
       raise "User is required"
     end
-    @keywords = attributes[:keywords] || []
-    @sources = attributes[:sources] || []
-    @radius = attributes[:radius].to_i || 0
-    @location_name = attributes[:location_name] || ""
-    @location = nil
-    @start_date = attributes[:start_date] || nil
-    @end_date = attributes[:end_date] || nil
+    
+    self.keywords   = attributes[:keywords]
+    self.sources    = attributes[:sources]
+    self.radius     = attributes[:radius]
+    self.lat        = attributes[:lat]
+    self.lon        = attributes[:lon]
+    self.start_date = attributes[:start_date]
+    self.end_date   = attributes[:end_date]
+  end
+  
+  def keywords=(value)
+    value ||= []
+    if value.is_a?(String)
+      value = value.split(',').map{ |k| k.strip }.compact.flatten
+    end
+    if value.size > 10
+      raise "Only 10 keywords are allowed"
+    end
+    @keywords = value
+  end
+  
+  def sources=(value)
+    value ||= []
+    if value.is_a?(String)
+      value = value.split(',').map{ |k| k.strip }.compact.flatten
+    end
+    value.each do |source|
+      raise "Source #{source} is not allowed" unless VALID_SOURCES.include?(source)
+    end
+    @sources = value
+  end
+  
+  def radius=(value)
+    value ||= 1_000
+    value = value.to_i
+    raise "Radius must be a possitive value" if value < 0
+    raise "Radius must be a value between 0 and 5000" if value > 5_000
+    @radius = value
+  end
+  
+  def start_date=(value)
+    @start_date = validate_date(value)
+  end
+  
+  def end_date=(value)
+    @end_date = validate_date(value)
   end
   
   def user
     User.find(@user_id)
+  end
+  
+  def self.find(attributes)
+    attributes.symbolize_keys!
+    
+    raise "Map ID is required" if attributes[:id].blank?
+    map_id = attributes[:id].to_i
+    
+    raise "User ID or User is required" if attributes[:user_id].blank? && attributes[:user].blank?
+    user = attributes[:user_id] ? User.find(attributes[:user_id]) : attributes[:user]
+    
+    connection = user.get_connection
+    
+    if row = connection.find_row(Mapismo.maps_table, "cartodb_id = #{map_id}")
+      new({
+        id: row["cartodb_id"].to_i,
+        name: row["name"],
+        user_id: user.id,
+        sources: row["sources"],
+        keywords: row["keywords"],
+        start_date: row["start_date"],
+        end_date: row["end_date"],
+        radius: row["radius"],
+        location_name: row["location_name"]
+      })
+      # TODO: lat y lon
+    else
+      nil
+    end
+  end
+  
+  def lat=(value)
+    @lat = value.nil? ? 0.0 : value.to_f
+  end
+
+  def lon=(value)
+    @lon = value.nil? ? 0.0 : value.to_f
+  end
+  
+  private
+  
+  def validate_date(value)
+    value = value.to_s
+    unless value.blank?
+      raise "Invalid format" if value !~ /\d{4}-\d{2}-\d{2}\+\d{2}:\d{2}:\d{2}/
+      begin
+        Time.parse(value)
+      rescue
+        raise "Invalid date"
+      end
+    end
+    value
   end
   
 end

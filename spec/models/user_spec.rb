@@ -4,6 +4,23 @@ require 'spec_helper'
 
 describe 'User' do
   
+  let(:subject) do 
+    User.new({
+      id: 1,
+      username: 'blat',
+      token: 'token',
+      secret: 'secret'
+    })
+  end
+  
+  it "should have an attribute id" do
+    subject.id.should == 1
+  end
+  
+  it "should have an attribute username" do
+    subject.username.should == 'blat'
+  end
+  
   describe '.find' do
     it "should return an instance of user with the values of the row if exists" do
       row = {

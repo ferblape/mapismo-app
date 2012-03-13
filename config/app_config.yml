@@ -1,11 +1,17 @@
 development:
   cartodb_username: 'mapismo'
   users_table: 'application_users_dev'
+  maps_table: 'mapismo_maps'
+  data_table: 'mapismo_data'
 
 test:
   cartodb_username: 'mapismo'
   users_table: 'application_users_test'
+  maps_table: 'mapismo_maps'
+  data_table: 'mapismo_data'
 
 production:
   cartodb_username: 'mapismo'
   users_table: 'application_users'
+  maps_table: 'mapismo_maps'
+  data_table: 'mapismo_data'

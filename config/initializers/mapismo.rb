@@ -8,6 +8,14 @@ class Mapismo
   def self.users_table
     APP_CONFIG[:users_table]
   end
+
+  def self.maps_table
+    APP_CONFIG[:maps_table]
+  end
+
+  def self.data_table
+    APP_CONFIG[:data_table]
+  end
   
   def self.oauth_token
     ENV['mapismo_oauth_token']
