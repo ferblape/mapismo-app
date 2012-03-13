@@ -35,3 +35,7 @@ MapismoApp::Application.configure do
   # Print deprecation notices to the stderr
   config.active_support.deprecation = :stderr
 end
+
+require Rails.root.join("spec/support/stubs/redis_mock.rb")
+
+$redis = RedisMock.new

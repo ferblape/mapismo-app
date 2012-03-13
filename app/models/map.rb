@@ -115,6 +115,7 @@ class Map
     connection = self.user.get_connection
     if connection.insert_row(Mapismo.maps_table, row)
       @id = connection.get_id_from_last_record(Mapismo.maps_table)
+      notify_workers
       return true
     else
       raise "Error creating map: #{$!}"
@@ -150,6 +151,30 @@ class Map
       end
     end
     value
+  end
+  
+  def notify_workers
+    user = self.user
+    base_message = {
+      cartodb_table_name: Mapismo.data_table,
+      cartodb_map_id: self.id,
+      cartodb_username: user.username,
+      cartodb_userid: self.user_id,
+      cartodb_auth_token: user.token, 
+      cartodb_auth_secret: user.secret,
+      latitude: self.lat,
+      longitude: self.lon,
+      radius: self.radius,
+      start_date: self.start_date,
+      end_date: self.end_date
+    }
+    worker_notifier = WorkerNotifier.new
+    
+    self.keywords.each do |k|
+      self.sources.each do |s|
+        worker_notifier.notify!(base_message.merge(keyword: k, source: s))
+      end
+    end
   end
   
 end

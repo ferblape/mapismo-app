@@ -87,8 +87,12 @@ describe Map do
         
         user = mock()
         user.stubs(:id).returns(1)
+        user.stubs(:username).returns('blat')
+        user.stubs(:token).returns('token')
+        user.stubs(:secret).returns('secret')
         user.stubs(:get_connection).returns(connection)
         
+        Map.any_instance.stubs(:id).returns(33)
         Map.any_instance.stubs(:user).returns(user)
       end
         
@@ -99,6 +103,31 @@ describe Map do
       it "should assign id 33 to the new map" do
         subject.save
         subject.id.should == 33
+      end
+      
+      it "should notify the workers" do
+        base_message = {
+          cartodb_table_name: Mapismo.data_table,
+          cartodb_map_id: subject.id,
+          cartodb_username: subject.user.username,
+          cartodb_userid: subject.user_id,
+          cartodb_auth_token: subject.user.token, 
+          cartodb_auth_secret: subject.user.secret,
+          latitude: subject.lat,
+          longitude: subject.lon,
+          radius: subject.radius,
+          start_date: subject.start_date,
+          end_date: subject.end_date
+        }
+        worker_notifier = mock()
+        WorkerNotifier.expects(:new).once.returns(worker_notifier)
+        
+        worker_notifier.expects(:notify!).with({:cartodb_table_name => 'mapismo_data', :cartodb_map_id => 33, :cartodb_username => 'blat', :cartodb_userid => 1, :cartodb_auth_token => 'token', :cartodb_auth_secret => 'secret', :latitude => 40.416691, :longitude => -3.700345, :radius => 3500, :start_date => '2011-05-15+00:00:00', :end_date => '2011-05-15+23:59:59', :keyword => '15m', :source => 'instagram'})
+        worker_notifier.expects(:notify!).with({:cartodb_table_name => 'mapismo_data', :cartodb_map_id => 33, :cartodb_username => 'blat', :cartodb_userid => 1, :cartodb_auth_token => 'token', :cartodb_auth_secret => 'secret', :latitude => 40.416691, :longitude => -3.700345, :radius => 3500, :start_date => '2011-05-15+00:00:00', :end_date => '2011-05-15+23:59:59', :keyword => '15m', :source => 'flickr'})
+        worker_notifier.expects(:notify!).with({:cartodb_table_name => 'mapismo_data', :cartodb_map_id => 33, :cartodb_username => 'blat', :cartodb_userid => 1, :cartodb_auth_token => 'token', :cartodb_auth_secret => 'secret', :latitude => 40.416691, :longitude => -3.700345, :radius => 3500, :start_date => '2011-05-15+00:00:00', :end_date => '2011-05-15+23:59:59', :keyword => 'indignados', :source => 'instagram'})
+        worker_notifier.expects(:notify!).with({:cartodb_table_name => 'mapismo_data', :cartodb_map_id => 33, :cartodb_username => 'blat', :cartodb_userid => 1, :cartodb_auth_token => 'token', :cartodb_auth_secret => 'secret', :latitude => 40.416691, :longitude => -3.700345, :radius => 3500, :start_date => '2011-05-15+00:00:00', :end_date => '2011-05-15+23:59:59', :keyword => 'indignados', :source => 'flickr'})
+          
+        subject.save
       end
     end
 
