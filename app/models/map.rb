@@ -44,6 +44,7 @@ class Map
     if value.is_a?(String)
       value = value.split(',').map{ |k| k.strip }.compact.flatten
     end
+    value.delete_if{ |v| v.blank? }
     value.each do |source|
       raise "Source #{source} is not allowed" unless VALID_SOURCES.include?(source)
     end
@@ -78,6 +79,8 @@ class Map
     User.find(@user_id)
   end
   
+  # find a map
+  # requires :id and :user_id in the attributes
   def self.find(attributes)
     attributes.symbolize_keys!
     

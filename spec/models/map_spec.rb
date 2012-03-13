@@ -171,18 +171,23 @@ describe Map do
     end
     
     it "should accept a string separated by commas" do
-      subject.keywords = "flickr, instagram"
-      subject.keywords.should == %W{ flickr instagram }
+      subject.sources = "flickr, instagram"
+      subject.sources.should == %W{ flickr instagram }
+    end
+
+    it "should clear blank values from an array" do
+      subject.sources = ["", "flickr","instagram", ""]
+      subject.sources.should == %W{ flickr instagram }
     end
 
     it "should accept an array" do
-      subject.keywords = ["flickr","instagram"]
-      subject.keywords.should == %W{ flickr instagram }
+      subject.sources = ["flickr","instagram"]
+      subject.sources.should == %W{ flickr instagram }
     end
 
     it "should be an empty array by default" do
-      subject.keywords = nil
-      subject.keywords.should == []
+      subject.sources = nil
+      subject.sources.should == []
     end
   end
   
