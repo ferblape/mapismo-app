@@ -6,5 +6,5 @@ MapismoApp::Application.routes.draw do
   match '/auth/failure',            to: 'sessions#failure'
   get   '/logout',                  to: 'sessions#destroy', as: :logout
   
-  resources :maps
+  resources :maps, except: [:update]
 end

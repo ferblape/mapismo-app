@@ -1,1 +1,40 @@
 <h2>Create a new map</h2>
+
+<%= form_for :map, url: maps_path do |f| %>
+  <%= f.label :name, "name" %>
+  <%= f.text_field :name %>
+
+  <%= f.label :keywords, "keywords" %>
+  <%= f.text_field :keywords, value: "" %>
+
+  <%= f.label :sources_flickr, "flickr" %>
+  <%= f.check_box :sources, {multiple: true}, "flickr", "" %>
+  <%= f.label :sources_instagram, "instagram" %>
+  <%= f.check_box :sources, {multiple: true}, "instagram", "" %>
+  
+  <%= f.label :radius, "radius" %>
+  <%= f.text_field :radius %>
+  
+  <%= f.label :location_name, "location" %>
+  <%= f.text_field :location_name %>
+
+  <%= f.label :lat, "latitude" %>
+  <%= f.text_field :lat %>
+
+  <%= f.label :lon, "longitude" %>
+  <%= f.text_field :lon %>
+  
+  <%= f.label :start_date, "start date" %>
+  <%= f.text_field :start_date %>
+  
+  <%= f.label :end_date, "end date" %>
+  <%= f.text_field :end_date %>
+  
+  <%= f.submit "save this map" %>
+<% end %>
+
+<style>
+label {
+  display: block;
+}
+</style>
