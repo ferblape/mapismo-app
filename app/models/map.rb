@@ -114,7 +114,6 @@ class Map
   def save
     row = {
       name: @name,
-      user_id: @user_id,
       sources: self.sources.join(','),
       keywords: self.keywords.join(','),
       start_date: self.start_date,
@@ -127,6 +126,7 @@ class Map
     
     connection = self.user.get_connection
     if connection.insert_row(Mapismo.maps_table, row)
+      @id = connection.get_id_from_last_record(Mapismo.maps_table)
       return true
     else
       raise "Error creating map: #{$!}"

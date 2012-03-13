@@ -23,7 +23,8 @@ module MapismoApp
       if connection.response.code.to_i == 200
         return true
       else
-        return connection.response
+        response = JSON.parse(connection.response.body)
+        raise response["error"][0]
       end
     end
 
@@ -51,7 +52,22 @@ module MapismoApp
       if connection.response.code.to_i == 200
         return true
       else
-        return connection.response
+        response = JSON.parse(connection.response.body)
+        raise response["error"][0]
+      end
+    end
+    
+    def get_id_from_last_record(table_name)
+      run_query("SELECT cartodb_id FROM #{table_name} ORDER BY created_at DESC LIMIT 1")
+      if connection.response.code.to_i == 200
+        response = JSON.parse(connection.response.body)
+        if response["total_rows"].to_i == 0
+          return nil
+        else
+          return response["rows"][0]["cartodb_id"]
+        end
+      else
+        return nil
       end
     end
 

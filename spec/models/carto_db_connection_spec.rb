@@ -51,11 +51,15 @@ describe "MapismoApp::CartoDBConnection" do
       
       it "should return false when the table could not be created" do
         response = mocked_response("400")
+        response.stubs(:body).returns("{\"error\":[\"error\"]}")
+
         connection.stubs(:response).returns(response)
         connection.expects(:post).with("/api/v1/tables", {name: "new_table_name", schema: "f1 varchar, f2 integer"})
         subject.stubs(:connection).returns(connection)
         
-        subject.create_table("new_table_name", "f1 varchar, f2 integer").should == response
+        lambda {
+          subject.create_table("new_table_name", "f1 varchar, f2 integer")
+        }.should raise_error('error')
       end
     end
     
@@ -124,15 +128,53 @@ describe "MapismoApp::CartoDBConnection" do
       
       it "should return the error if failure" do
         response = mocked_response(400)
+        response.stubs(:body).returns("{\"error\":[\"column \\\"user_id\\\" of relation \\\"mapismo_maps\\\" does not exist\"]}")
         connection.stubs(:response).returns(response)
         subject.stubs(:connection).returns(connection)
         
         subject.expects(:run_query).with("INSERT INTO table1 (a,b) VALUES ('1','2')", :post)
-        subject.insert_row("table1", attributes).should == response
+        lambda {
+          subject.insert_row("table1", attributes)
+        }.should raise_error('column "user_id" of relation "mapismo_maps" does not exist')
       end
     end
     
-    context "private method" do
+    describe "#get_id_from_last_record" do
+      context "if table exists" do
+        it "should return the id of the last record" do
+          subject.expects(:run_query).once.with("SELECT cartodb_id FROM table ORDER BY created_at DESC LIMIT 1")
+
+          json = {
+            total_rows: 1,
+            rows: [
+              {cartodb_id: 33, name: 'wadus'},
+              {cartodb_id: 22, name: 'wadus2'}
+            ]
+          }
+          response = mock()
+          response.stubs(:code).returns("200")
+          response.stubs(:body).returns(json.to_json)
+
+          connection.stubs(:response).returns(response)
+          subject.stubs(:connection).returns(connection)
+          
+          subject.get_id_from_last_record("table").should == 33
+        end
+      end
+
+      context "if table does not exist" do
+        it "should return nil" do
+          subject.expects(:run_query).once.with("SELECT cartodb_id FROM table ORDER BY created_at DESC LIMIT 1")
+          response = mocked_response(400)
+          connection.stubs(:response).returns(response)
+          subject.stubs(:connection).returns(connection)
+          
+          subject.get_id_from_last_record("table").should be_nil
+        end
+      end
+    end
+    
+    context "private methods" do
       describe "#run_query" do
         it "should call API endpoint with the given query" do
           query = "SELECT * FROM wadus"
