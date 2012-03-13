@@ -173,22 +173,22 @@ describe "MapismoApp::CartoDBConnection" do
         end
       end
     end
+
+    describe "#run_query" do
+      it "should call API endpoint with the given query" do
+        query = "SELECT * FROM wadus"
+        request = Mapismo.cartodb_api_endpoint + "?q=" + CGI.escape(query)
+      
+        connection.expects(:post).with(request).once.returns(true)
+        connection.stubs(:response).returns(mocked_response(200))
+
+        subject.stubs(:connection).returns(connection)
+      
+        subject.run_query(query, :post)
+      end
+    end
     
     context "private methods" do
-      describe "#run_query" do
-        it "should call API endpoint with the given query" do
-          query = "SELECT * FROM wadus"
-          request = Mapismo.cartodb_api_endpoint + "?q=" + CGI.escape(query)
-        
-          connection.expects(:post).with(request).once.returns(true)
-          connection.stubs(:response).returns(mocked_response(200))
-
-          subject.stubs(:connection).returns(connection)
-        
-          subject.send(:run_query, query, :post)
-        end
-      end
-      
       describe "#convert_to_insert_query" do
         it "should convert a name and a hash of attributes into a valid insert query" do
           attributes = {a: '1', b: '2'}

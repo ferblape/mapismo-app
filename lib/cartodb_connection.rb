@@ -70,6 +70,12 @@ module MapismoApp
         return nil
       end
     end
+    
+    def run_query(query, method = :get)
+      request = Mapismo.cartodb_api_endpoint + "?q=" + CGI.escape(query)
+      connection.send(method, request)
+      return connection.response
+    end
 
     private
 
@@ -81,12 +87,6 @@ module MapismoApp
         values_list << "'#{v}'"
       end
       return "INSERT INTO #{name} (#{attributes_list.join(',')}) VALUES (#{values_list.join(',')})" 
-    end
-
-    def run_query(query, method = :get)
-      request = Mapismo.cartodb_api_endpoint + "?q=" + CGI.escape(query)
-      connection.send(method, request)
-      return connection.response
     end
   
     def load_consumer

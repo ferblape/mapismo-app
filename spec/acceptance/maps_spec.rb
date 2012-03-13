@@ -61,6 +61,8 @@ feature 'Maps' do
     user.stubs(:id).returns(1)
     User.stubs(:find).with(1).returns(user)
     
+    Map.stubs(:find).returns(map)
+    
     visit "/"
     
     click "Login using CartoDB"
@@ -68,6 +70,9 @@ feature 'Maps' do
     page.should have_content("Hi blat!")
     page.should have_content("Your maps")
     page.should have_content("15M in Madrid")
+    click "15M in Madrid"
+    
+    page.should have_css("h2", text: "15M in Madrid")
   end
 
 end

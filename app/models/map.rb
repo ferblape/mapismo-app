@@ -93,19 +93,7 @@ class Map
     connection = user.get_connection
     
     if row = connection.find_row(Mapismo.maps_table, "cartodb_id = #{map_id}")
-      new({
-        id: row["cartodb_id"].to_i,
-        name: row["name"],
-        user_id: user.id,
-        sources: row["sources"],
-        keywords: row["keywords"],
-        start_date: row["start_date"],
-        end_date: row["end_date"],
-        radius: row["radius"],
-        location_name: row["location_name"],
-        lat: row["lat"],
-        lon: row["lon"]
-      })
+      new(row_to_attributes(row, user))
     else
       nil
     end
@@ -131,6 +119,22 @@ class Map
     else
       raise "Error creating map: #{$!}"
     end
+  end
+  
+  def self.row_to_attributes(row, user)
+    {
+      id: row["cartodb_id"].to_i,
+      name: row["name"],
+      user_id: user.id,
+      sources: row["sources"],
+      keywords: row["keywords"],
+      start_date: row["start_date"],
+      end_date: row["end_date"],
+      radius: row["radius"],
+      location_name: row["location_name"],
+      lat: row["lat"],
+      lon: row["lon"]
+    }
   end
   
   private
