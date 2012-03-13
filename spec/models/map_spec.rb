@@ -63,6 +63,74 @@ describe Map do
     end
   end
   
+  describe "save" do
+    context "when the data is ok and the map is valid" do
+      let(:subject) do 
+        Map.new({
+          name: "15M in Madrid",
+          user_id: 1,
+          keywords: ["15m", "indignados"],
+          sources: ["instagram", "flickr"],
+          radius: 3500,
+          location_name: "Madrid",
+          lat: 40.416691,
+          lon: -3.700345,
+          start_date: "2011-05-15+00:00:00",
+          end_date: "2011-05-15+23:59:59"
+        })
+      end
+      
+      before do
+        connection = mock()
+        connection.expects(:insert_row).once.returns(true)
+        
+        user = mock()
+        user.stubs(:id).returns(1)
+        user.stubs(:get_connection).returns(connection)
+        
+        Map.any_instance.stubs(:user).returns(user)
+      end
+        
+      it "should insert a new row" do
+        subject.save.should == true
+      end
+    end
+
+    context "when the data is wrong" do
+      let(:subject) do 
+        Map.new({
+          name: "15M in Madrid",
+          user_id: 1,
+          keywords: ["15m", "indignados"],
+          sources: ["instagram", "flickr"],
+          radius: 3500,
+          location_name: "Madrid",
+          lat: 40.416691,
+          lon: -3.700345,
+          start_date: "2011-05-15+00:00:00",
+          end_date: "2011-05-15+23:59:59"
+        })
+      end
+      
+      before do
+        connection = mock()
+        connection.expects(:insert_row).once.returns(false)
+        
+        user = mock()
+        user.stubs(:id).returns(1)
+        user.stubs(:get_connection).returns(connection)
+        
+        Map.any_instance.stubs(:user).returns(user)
+      end
+        
+      it "should insert a new row" do
+        lambda {
+          subject.save
+        }.should raise_error("Error creating map: ")
+      end
+    end
+  end
+  
   describe "#keywords= assignment" do
     let(:subject) { Map.new(user_id: 1) }
     

@@ -66,6 +66,14 @@ class Map
     @end_date = validate_date(value)
   end
   
+  def lat=(value)
+    @lat = value.nil? ? 0.0 : value.to_f
+  end
+
+  def lon=(value)
+    @lon = value.nil? ? 0.0 : value.to_f
+  end
+  
   def user
     User.find(@user_id)
   end
@@ -91,20 +99,35 @@ class Map
         start_date: row["start_date"],
         end_date: row["end_date"],
         radius: row["radius"],
-        location_name: row["location_name"]
+        location_name: row["location_name"],
+        lat: row["lat"],
+        lon: row["lon"]
       })
-      # TODO: lat y lon
     else
       nil
     end
   end
   
-  def lat=(value)
-    @lat = value.nil? ? 0.0 : value.to_f
-  end
-
-  def lon=(value)
-    @lon = value.nil? ? 0.0 : value.to_f
+  def save
+    row = {
+      name: @name,
+      user_id: @user_id,
+      sources: self.sources.join(','),
+      keywords: self.keywords.join(','),
+      start_date: self.start_date,
+      end_date: self.end_date,
+      radius: self.radius,
+      location_name: self.location_name,
+      lat: self.lat,
+      lon: self.lon
+    }
+    
+    connection = self.user.get_connection
+    if connection.insert_row(Mapismo.maps_table, row)
+      return true
+    else
+      raise "Error creating map: #{$!}"
+    end
   end
   
   private
