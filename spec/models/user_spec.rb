@@ -63,10 +63,12 @@ describe 'User' do
       response.stubs(:body).returns(body.to_json)
       
       connection = mock()
-      connection.expects(:run_query).once
       connection.stubs(:response).returns(response)
       
-      User.any_instance.stubs(:connection).returns(connection)
+      cartodb_connection = mock()
+      cartodb_connection.stubs(:connection).returns(connection)
+      cartodb_connection.expects(:run_query).once
+      User.any_instance.stubs(:connection).returns(cartodb_connection)
       
       maps = subject.maps
       maps.size.should == 2
