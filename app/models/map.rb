@@ -44,6 +44,7 @@ class Map
     if value.is_a?(String)
       value = value.split(',').map{ |k| k.strip }.compact.flatten
     end
+    value.delete_if{ |v| v.blank? }
     value.each do |source|
       raise "Source #{source} is not allowed" unless VALID_SOURCES.include?(source)
     end
@@ -78,6 +79,8 @@ class Map
     User.find(@user_id)
   end
   
+  # find a map
+  # requires :id and :user_id in the attributes
   def self.find(attributes)
     attributes.symbolize_keys!
     
@@ -90,19 +93,7 @@ class Map
     connection = user.get_connection
     
     if row = connection.find_row(Mapismo.maps_table, "cartodb_id = #{map_id}")
-      new({
-        id: row["cartodb_id"].to_i,
-        name: row["name"],
-        user_id: user.id,
-        sources: row["sources"],
-        keywords: row["keywords"],
-        start_date: row["start_date"],
-        end_date: row["end_date"],
-        radius: row["radius"],
-        location_name: row["location_name"],
-        lat: row["lat"],
-        lon: row["lon"]
-      })
+      new(row_to_attributes(row, user))
     else
       nil
     end
@@ -111,7 +102,6 @@ class Map
   def save
     row = {
       name: @name,
-      user_id: @user_id,
       sources: self.sources.join(','),
       keywords: self.keywords.join(','),
       start_date: self.start_date,
@@ -124,10 +114,27 @@ class Map
     
     connection = self.user.get_connection
     if connection.insert_row(Mapismo.maps_table, row)
+      @id = connection.get_id_from_last_record(Mapismo.maps_table)
       return true
     else
       raise "Error creating map: #{$!}"
     end
+  end
+  
+  def self.row_to_attributes(row, user)
+    {
+      id: row["cartodb_id"].to_i,
+      name: row["name"],
+      user_id: user.id,
+      sources: row["sources"],
+      keywords: row["keywords"],
+      start_date: row["start_date"],
+      end_date: row["end_date"],
+      radius: row["radius"],
+      location_name: row["location_name"],
+      lat: row["lat"],
+      lon: row["lon"]
+    }
   end
   
   private

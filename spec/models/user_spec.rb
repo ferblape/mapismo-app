@@ -42,6 +42,42 @@ describe 'User' do
     end
   end
   
+  describe "#maps" do
+    it "should return an array of the maps of the user" do
+      body = {
+        "total_rows" => 2,
+        "rows" => [
+          {
+            "cartodb_id" => 1,
+            "name" => "15M in Madrid"
+          },
+          {
+            "cartodb_id" => 2,
+            "name" => "Gran Vía"
+          }
+        ]
+      }
+      
+      response = mock()
+      response.stubs(:code).returns("200")
+      response.stubs(:body).returns(body.to_json)
+      
+      connection = mock()
+      connection.expects(:run_query).once
+      connection.stubs(:response).returns(response)
+      
+      User.any_instance.stubs(:connection).returns(connection)
+      
+      maps = subject.maps
+      maps.size.should == 2
+      
+      maps[0].id.should == 1
+      maps[0].name.should == "15M in Madrid"
+
+      maps[1].id.should == 2
+      maps[1].name.should == "Gran Vía"
+    end
+  end
   
   describe '.create' do
     let(:attributes) do

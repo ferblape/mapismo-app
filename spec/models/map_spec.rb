@@ -83,6 +83,7 @@ describe Map do
       before do
         connection = mock()
         connection.expects(:insert_row).once.returns(true)
+        connection.expects(:get_id_from_last_record).with(Mapismo.maps_table).once.returns(33)
         
         user = mock()
         user.stubs(:id).returns(1)
@@ -93,6 +94,11 @@ describe Map do
         
       it "should insert a new row" do
         subject.save.should == true
+      end
+      
+      it "should assign id 33 to the new map" do
+        subject.save
+        subject.id.should == 33
       end
     end
 
@@ -171,18 +177,23 @@ describe Map do
     end
     
     it "should accept a string separated by commas" do
-      subject.keywords = "flickr, instagram"
-      subject.keywords.should == %W{ flickr instagram }
+      subject.sources = "flickr, instagram"
+      subject.sources.should == %W{ flickr instagram }
+    end
+
+    it "should clear blank values from an array" do
+      subject.sources = ["", "flickr","instagram", ""]
+      subject.sources.should == %W{ flickr instagram }
     end
 
     it "should accept an array" do
-      subject.keywords = ["flickr","instagram"]
-      subject.keywords.should == %W{ flickr instagram }
+      subject.sources = ["flickr","instagram"]
+      subject.sources.should == %W{ flickr instagram }
     end
 
     it "should be an empty array by default" do
-      subject.keywords = nil
-      subject.keywords.should == []
+      subject.sources = nil
+      subject.sources.should == []
     end
   end
   

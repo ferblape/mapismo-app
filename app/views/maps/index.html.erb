@@ -2,6 +2,6 @@
 
 <ul>
 <% @maps.each do |map| %>
-  <li><%= map.name %></li>
+  <li><%= link_to(map.name, edit_map_path(map.id)) %></li>
 <% end %>
 </ul>

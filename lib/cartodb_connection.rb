@@ -23,7 +23,8 @@ module MapismoApp
       if connection.response.code.to_i == 200
         return true
       else
-        return connection.response
+        response = JSON.parse(connection.response.body)
+        raise response["error"][0]
       end
     end
 
@@ -51,8 +52,29 @@ module MapismoApp
       if connection.response.code.to_i == 200
         return true
       else
-        return connection.response
+        response = JSON.parse(connection.response.body)
+        raise response["error"][0]
       end
+    end
+    
+    def get_id_from_last_record(table_name)
+      run_query("SELECT cartodb_id FROM #{table_name} ORDER BY created_at DESC LIMIT 1")
+      if connection.response.code.to_i == 200
+        response = JSON.parse(connection.response.body)
+        if response["total_rows"].to_i == 0
+          return nil
+        else
+          return response["rows"][0]["cartodb_id"]
+        end
+      else
+        return nil
+      end
+    end
+    
+    def run_query(query, method = :get)
+      request = Mapismo.cartodb_api_endpoint + "?q=" + CGI.escape(query)
+      connection.send(method, request)
+      return connection.response
     end
 
     private
@@ -65,12 +87,6 @@ module MapismoApp
         values_list << "'#{v}'"
       end
       return "INSERT INTO #{name} (#{attributes_list.join(',')}) VALUES (#{values_list.join(',')})" 
-    end
-
-    def run_query(query, method = :get)
-      request = Mapismo.cartodb_api_endpoint + "?q=" + CGI.escape(query)
-      connection.send(method, request)
-      return connection.response
     end
   
     def load_consumer
