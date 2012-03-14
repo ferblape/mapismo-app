@@ -16,7 +16,6 @@
 
 <div class="popover what">
   <h2>What</h2>
-  <form>
   <div class="social_networks">
     <label for="twitter" class="twitter">
       <span>Twitter</span>
@@ -37,13 +36,10 @@
   
   <div class="keywords">
     <label for="keywords">With these words</label>
-    <input type="text" />
-    <ul id="keywords_list" class="keywords_list"> 
-      <li>Pantalones
-        <a href="#" class="delete">Remove</a>
-      </li>
-    </div>
-  </form>
+    <input type="text" id="new_keyword" />
+    <ul id="keywords_list" class="keywords_list"></ul>
+  </div>
+  <input id="map_keywords" name="map[keywords]" type="hidden" value="" />
 </div>
 
 <div class="popover where" style="left: 380px">

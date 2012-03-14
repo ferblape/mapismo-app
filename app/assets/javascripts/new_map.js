@@ -22,6 +22,35 @@ function newMap(){
       $('.popover.when').css('left', left + width - $('.popover.when').width()/2);
     },
     
+    updateKeywordList: function(){
+      $('ul#keywords_list').html('');
+      $('input#map_keywords').val().split(",").forEach(function(keyword){
+        var li = $('<li/>');
+        li.html(keyword + ' <a href="#" class="delete">Remove</a>').
+           appendTo($('ul#keywords_list'));
+      });
+    },
+    
+    removeKeyword: function(keyword){
+      var val = $('input#map_keywords').val().split(",").filter(function(element, index, array){
+        return (element != keyword.trim());
+      });
+      $('input#map_keywords').val(val);
+      this.updateMapBar();
+    },
+    
+    addKeyword: function(keyword){
+      keyword = keyword.trim();
+      if(keyword == ""){
+        return;
+      }
+      var val = $('input#map_keywords').val().split(",");
+      val.push(keyword)
+      $('input#map_keywords').val(val.join(","));
+      this.updateKeywordList();
+      this.updateMapBar();
+    },
+    
     whatValues: function(sources, keywords){
       sources.forEach(function(source){
         var str;
@@ -34,6 +63,8 @@ function newMap(){
             break;
         };
       });
+      $('input#map_keywords').val(keywords.join(","));
+      this.updateKeywordList();
     },
 
     whereValue: function(value){
@@ -59,6 +90,7 @@ function newMap(){
       });
       parsedValue += " about ";
       // TODO: the last ',' should be 'and'
+      parsedValue += $('input#map_keywords').val().split(",").join(", ");
       
       this.parentElement().find('a:eq(0)').html(parsedValue);
     },
@@ -82,9 +114,15 @@ function newMap(){
       // handle keyboard strokes
       $(document).keyup(function(e) {
         // escape key
-        if (e.keyCode == 27) {
+        if(e.keyCode == 27) {
           $('.popover').hide();
           e.preventDefault(); e.stopPropagation();
+        }
+        if(e.keyCode == 13){
+          if($('input#new_keyword').is(":focus")){
+            that.addKeyword($('input#new_keyword').val());
+            $('input#new_keyword').val('');
+          }
         }
       });
       
@@ -100,7 +138,14 @@ function newMap(){
           that.updateMapBar();
           e.preventDefault(); e.stopPropagation();
         }
-      })
+      });
+      
+      $('ul#keywords_list').on('click', 'a.delete', function(e){
+        var parent = $(this).parents('li');
+        that.removeKeyword(parent.text().replace("Remove", ""));
+        parent.remove();
+        e.preventDefault(); e.stopPropagation();
+      });
     }
   });
 }
