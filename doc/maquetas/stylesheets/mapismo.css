@@ -123,6 +123,12 @@ a.button:hover, #top_bar a.button:hover, .save_bar a:hover {
   right: 0;
   text-align: right;
   padding-right: 18px;
+  -webkit-border-top-left-radius: 3px;
+  -webkit-border-bottom-left-radius: 3px;
+  -moz-border-radius-topleft: 3px;
+  -moz-border-radius-bottomleft: 3px;
+  border-top-left-radius: 3px;
+  border-bottom-left-radius: 3px;
 }
 
 /* Popovers */
