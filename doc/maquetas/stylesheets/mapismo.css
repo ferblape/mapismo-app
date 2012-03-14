@@ -142,7 +142,7 @@ a.button:hover, #top_bar a.button:hover, .save_bar a:hover {
   top: auto;
   height: 34px;
 }
-.play, .pause, .options {
+.play, .pause, a.options {
   width: 44px;
   height: 28px;
   text-indent: -9999em;
@@ -465,4 +465,36 @@ a.options {
 .content.twitter {
   font: 18px Georgia, 'Times New Roman', serif;
   padding-bottom: 4px;
+}
+
+/* Options popover */
+.popover.options {
+  left: auto;
+  top: auto;
+  bottom: 60px;
+  right: 18px;
+  width: 171px;
+}
+.popover.options li {
+  display: block;
+  border-bottom: 1px solid #e9ebed;
+  background-color: #FFF;
+  margin: 0;
+  padding: 0;
+}
+.popover.options li:last-child {
+  border-bottom: 0;
+}
+.popover.options a, .popover.options span {
+  display: block;
+  color: #303030;
+  line-height: 30px;
+  padding: 0 10px;
+  text-decoration: none;
+}
+.popover.options li a:hover {
+  color: #2185db;
+}
+.popover.options input {
+  width: 100px;
 }
