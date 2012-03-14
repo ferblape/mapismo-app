@@ -48,12 +48,12 @@ table {
 }
 
 /* Sprites */
-.popover h2, .social_networks span, .keywords_list .delete, .location input, .pagination a {
+.popover h2, .social_networks span, .keywords_list .delete, .location input, .pagination a, .play, .pause, a.options {
   background: transparent image-url("sprites.png") 0 0 no-repeat;
 }
 
 /* Rounded */
-.popover, #top_bar a, .social_networks label, .keywords_list li, #content .avatar, .button {
+.popover, #top_bar a, .social_networks label, .keywords_list li, #content .avatar, .button, #timeline {
   -moz-border-radius: 3px; 
   -webkit-border-radius: 3px;
   border-radius: 3px;
@@ -74,7 +74,7 @@ body, input {
   height: 100%;
   z-index: 10;
 }
-#top_bar, .save_bar {
+#top_bar, .save_bar, #timeline_bar {
   position: absolute;
   background: rgba(48, 48, 48, 0.85);
   top: 6px;
@@ -107,11 +107,12 @@ body, input {
 }
 
 a.button, #top_bar a.button, .save_bar a {
-  background: #2185db;
+  background-color: #2185db;
   border: none;
 }
 a.button:hover, #top_bar a.button:hover, .save_bar a:hover { 
-  background: #3498ed
+  background-color: #3498ed;
+  cursor: pointer;
 }
 #top_bar a.button {
   position: absolute;
@@ -133,6 +134,58 @@ a.button:hover, #top_bar a.button:hover, .save_bar a:hover {
   -moz-border-radius-bottomleft: 3px;
   border-top-left-radius: 3px;
   border-bottom-left-radius: 3px;
+}
+
+/* Timeline */
+#timeline_bar {
+  bottom: 6px;
+  top: auto;
+  height: 34px;
+}
+.play, .pause, a.options {
+  width: 44px;
+  height: 28px;
+  text-indent: -9999em;
+  display: block;
+  position: absolute;
+  top: 9px;
+  left: 18px;
+  background-position: -80px -228px;
+}
+.pause {
+  left: 84px;
+  background-position: -80px -200px;
+}
+a.options {
+  left: auto;
+  right: 18px;
+  background-color: #303030;
+  background-position: -80px -256px;
+}
+#timeline_container {
+  padding-left: 80px;
+  padding-right: 80px;
+  padding-top: 10px;
+}
+#timeline {
+  height: 12px;
+  background: #353535;
+  border: 1px inset #848484;
+  width: 100%;
+}
+#timeline .items {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+#timeline .items li {
+  background: #6b6c6d;
+  width: 1px;
+  height: 12px;
+  position: absolute;
+}
+#timeline .items li.selected {
+  background: #FFF;
 }
 
 /* Popovers */
@@ -158,7 +211,7 @@ a.button:hover, #top_bar a.button:hover, .save_bar a:hover {
 
 /* What */
 .social_networks {
-  background: transparent image-url("bg_social_networks.gif")  0 0 repeat;
+  background: transparent image-url("bg_social_networks.gif") 0 0 repeat;
   overflow: hidden;
   padding-bottom:10px;
 }
@@ -412,4 +465,36 @@ a.button:hover, #top_bar a.button:hover, .save_bar a:hover {
 .content.twitter {
   font: 18px Georgia, 'Times New Roman', serif;
   padding-bottom: 4px;
+}
+
+/* Options popover */
+.popover.options {
+  left: auto;
+  top: auto;
+  bottom: 60px;
+  right: 18px;
+  width: 171px;
+}
+.popover.options li {
+  display: block;
+  border-bottom: 1px solid #e9ebed;
+  background-color: #FFF;
+  margin: 0;
+  padding: 0;
+}
+.popover.options li:last-child {
+  border-bottom: 0;
+}
+.popover.options a, .popover.options span {
+  display: block;
+  color: #303030;
+  line-height: 30px;
+  padding: 0 10px;
+  text-decoration: none;
+}
+.popover.options li a:hover {
+  color: #2185db;
+}
+.popover.options input {
+  width: 100px;
 }
