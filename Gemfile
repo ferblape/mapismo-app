@@ -25,6 +25,6 @@ end
 group :development, :test do
   gem "rspec-rails"
   gem "steak"
-  # install Ruby debug for 1.9.3 from here http://fernando.blat.es/post/15361240325/ruby-1-9-3-ruby-debug
-  gem "ruby-debug19", require: "ruby-debug"
+  gem "tddium-linecache19", "~> 0.5.13"
+  gem "ruby-debug-base19", git: "git://github.com/robmathews/ruby-debug-base19-0.11.26.git"
 end

@@ -1,1 +1,1 @@
---colour --format documentation --order random --backtrace 
+-d --colour --format documentation --order random --backtrace 
