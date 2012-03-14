@@ -1,3 +1,84 @@
+<% title "New map" %>
+
+<header id="top_bar">
+  Creating a map 
+  with <a href="#" data-type="what"></a>
+  in <a href="#" data-type="where"></a> 
+  on <a href="#" data-type="when"></a>
+  
+  <a href="#" class="button">Go</a>
+</header>
+
+<div class="save_bar">
+  Done?
+  <a href="#" class="button">Save map</a>
+</div>
+
+<div class="popover what">
+  <h2>What</h2>
+  <form>
+  <div class="social_networks">
+    <label for="twitter" class="twitter">
+      <span>Twitter</span>
+      <input name="map[sources][]" type="hidden" value="" />
+      <input name="map[sources][]" type="checkbox" value="twitter" id="twitter"/>
+    </label>
+    <label for="flickr" class="flickr">
+      <span>Flickr</span>
+      <input name="map[sources][]" type="hidden" value="" />
+      <input name="map[sources][]" type="checkbox" value="flickr" id="flickr"/>
+    </label>
+    <label for="instagram" class="instagram">
+      <span>Instagram</span>
+      <input name="map[sources][]" type="hidden" value="" />
+      <input name="map[sources][]" type="checkbox" value="instagram" id="instagram"/>
+    </label>
+  </div>
+  
+  <div class="keywords">
+    <label for="keywords">With these words</label>
+    <input type="text" />
+    <ul id="keywords_list" class="keywords_list"> 
+      <li>Pantalones
+        <a href="#" class="delete">Remove</a>
+      </li>
+    </div>
+  </form>
+</div>
+
+<div class="popover where" style="left: 380px">
+  <h2>Where</h2>
+  <form>
+    <div class="location">
+      <input type="text">
+    </div>
+  </form>
+</div>
+
+<div class="popover when" style="left: 760px">
+	<h2>When</h2>
+	<form>
+	  <div class="from">
+	    <label for="from_day">From</label>
+	    <input type="text" id="from_day" class="day">
+	    <input type="text" class="time">
+	  </div>
+	  <div class="to">
+	    <label for="to_day">To</label>
+	    <input type="text" id="to_day" class="day">
+	    <input type="text" class="time">
+	  </div>
+	</form>
+</div>
+
+<div id="timeline">
+  
+</div>
+
+
+<div id="map"></div>  
+
+
 <h2>Create a new map</h2>
 
 <%= form_for :map, url: maps_path do |f| %>
@@ -38,3 +119,8 @@ label {
   display: block;
 }
 </style>
+
+<%= content_for :js do %>
+  MAPISMO.newMap.initMapValues();
+  MAPISMO.newMap.initDOM();
+<% end %>

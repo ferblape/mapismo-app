@@ -1,21 +1,23 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Mapismo</title>
-  <%= stylesheet_link_tag    "application", :media => "all" %>
+  <meta charset="utf-8">
+  <title><%= yield(:title).blank? ? "Mapismo" : yield(:title) %></title>
+  <%= stylesheet_link_tag "application" %>
   <%= javascript_include_tag "application" %>
   <%= csrf_meta_tags %>
+  <!--[if IE]>
+    <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+  
+  <script type="text/javascript">
+  $(document).ready(function() {
+    <%= yield :js %>
+  });
+  </script>
 </head>
 <body>
-
-<header>
-  <% if logged_in? %>
-    Hi <%= current_user.username %>! <%= link_to("View your maps", "#") %> · <%= link_to('logout', logout_path) %>
-  <% else %>
-    <%= link_to("Login using CartoDB", "/auth/cartodb") %>
-  <% end %>
-</header>
-
+  
 <%= flush_the_flash %>
 
 <%= yield %>

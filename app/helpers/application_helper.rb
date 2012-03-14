@@ -1,3 +1,5 @@
+# coding: UTF-8
+
 module ApplicationHelper
   
   def flush_the_flash
@@ -7,6 +9,12 @@ module ApplicationHelper
           flash[:notice] || flash[:alert]
         end
       end
+    end
+  end
+  
+  def title(page_title)
+    content_for :title do
+      "Mapismo · " + page_title
     end
   end
   
