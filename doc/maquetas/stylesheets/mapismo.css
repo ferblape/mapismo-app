@@ -88,6 +88,10 @@ body, input {
   padding: 6px 0;
   text-shadow: 1px 1px 1px #000;
 }
+#top_bar h1 {
+  height: 30px;
+  line-height: 30px;
+}
 #top_bar a, .save_bar a {
   color: #eee;
   text-decoration: none;
