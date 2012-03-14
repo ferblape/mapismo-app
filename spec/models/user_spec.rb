@@ -21,6 +21,14 @@ describe 'User' do
     subject.username.should == 'blat'
   end
   
+  it "should have an attribute token" do
+    subject.token.should == 'token'
+  end
+  
+  it "should have an attribute secret" do
+    subject.secret.should == 'secret'
+  end
+  
   describe '.find' do
     it "should return an instance of user with the values of the row if exists" do
       row = {

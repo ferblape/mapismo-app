@@ -5,3 +5,15 @@
 require File.expand_path('../config/application', __FILE__)
 
 MapismoApp::Application.load_tasks
+
+# Fake rake tasks for Semaphore
+namespace :db do
+  task :setup do
+    true
+  end
+  namespace :test do
+    task :prepare do
+      true
+    end
+  end
+end

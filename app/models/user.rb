@@ -2,7 +2,7 @@
 
 class User
   
-  attr_reader :id, :username
+  attr_reader :id, :username, :token, :secret
   
   def initialize(attributes)
     @id = attributes[:id]
@@ -44,7 +44,11 @@ class User
     maps_table_schema = "name varchar, sources varchar, keywords varchar, start_date varchar," + 
                         "end_date varchar, radius integer, location_name varchar, lat float, lon float"
     connection.create_table(Mapismo.maps_table, maps_table_schema)
-    connection.create_table(Mapismo.data_table, "cartodb_user_id integer, map_id integer")
+    data_table_schema = "map_id integer, avatar_url varchar, username varchar, date timestamp," +
+                        "permalink varchar, data varchar, the_geom geometry, source varchar," +
+                        "source_id varchar"
+    connection.create_table(Mapismo.data_table, data_table_schema)
+    # TODO: make this tables publictest
   end
   
   def maps

@@ -35,4 +35,4 @@ e << c.final
 
 p "sending: #{Base64.encode64(iv)}|||#{Base64.encode64(e)}"
 
-redis.publish "mapismo", "#{Base64.encode64(iv)}|||#{Base64.encode64(e)}"
+redis.publish "mapismo-dev", "#{Base64.encode64(iv)}|||#{Base64.encode64(e)}"
