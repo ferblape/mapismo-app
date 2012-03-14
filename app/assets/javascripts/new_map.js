@@ -125,6 +125,18 @@ function newMap(){
       this.wherePosition();
       this.whenPosition();
       
+      // radius slider
+      $('#radius-picker').slider({
+        range: 'min',
+        min: 500,
+        max: 5000,
+        step: 500,
+        value: $('#map_radius').val(),
+        change: function(e, ui){
+          $('#map_radius').val(ui.value);
+        }
+      });
+      
       // handle keyboard strokes
       $(document).keyup(function(e) {
         // escape key
@@ -146,7 +158,8 @@ function newMap(){
       
       this.parentElement().find('a[data-type=what]').on({
         click: function(e){
-          $('.popover.what').toggle();
+          $('.popover').hide();
+          $('.popover.what').show();
           $('#new_keyword').focus();
           e.preventDefault(); e.stopPropagation();
         }
@@ -154,7 +167,8 @@ function newMap(){
       
       this.parentElement().find('a[data-type=where]').on({
         click: function(e){
-          $('.popover.where').toggle();
+          $('.popover').hide();
+          $('.popover.where').show();
           $('#map_location_name').focus();
           e.preventDefault(); e.stopPropagation();
         }

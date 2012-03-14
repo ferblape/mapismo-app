@@ -47,8 +47,11 @@
   <div class="location">
     <input id="map_location_name" name="map[location_name]" size="30" type="text" value="" />
   </div>
+  <div id="radius-picker"></div>
+  
   <input id="map_lat" name="map[lat]" type="hidden" value="0.0" />
   <input id="map_lon" name="map[lon]" type="hidden" value="0.0" />
+  <input id="map_radius" name="map[radius]" type="hidden" value="1000" />
 </div>
 
 <div class="popover when" style="left: 760px">
@@ -78,9 +81,6 @@
 <h2>Create a new map</h2>
 
 <%= form_for :map, url: maps_path do |f| %>
-  <%= f.label :radius, "radius" %>
-  <%= f.text_field :radius %>
-  
   <%= f.label :start_date, "start date" %>
   <%= f.text_field :start_date %>
   
@@ -93,6 +93,9 @@
 <style>
 label {
   display: block;
+}
+.ui-slider  {
+  height: 100px;
 }
 </style>
 
