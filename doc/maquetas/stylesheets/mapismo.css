@@ -382,13 +382,13 @@ a.button:hover, #top_bar a.button:hover {
   margin: 9px;
   width: 320px;
 }
-.instagram {
+.content.instagram {
   height: 320px;
 }
 .content img {
   max-width: 100%;
 }
-.twitter {
+.content.twitter {
   font: 18px Georgia, 'Times New Roman', serif;
   padding-bottom: 4px;
 }
