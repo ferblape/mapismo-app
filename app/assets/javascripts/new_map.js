@@ -4,6 +4,16 @@ function newMap(){
       return $('header#top_bar');
     },
     
+    readyForSaving: function(){
+      if($('input#map_keywords').val().split(",").length == 0){
+        return false
+      }
+      if($('input#map_location_name').val().trim() == ""){
+        return false
+      }
+      return true;
+    },
+    
     whatPosition: function(){
       var left = this.parentElement().find('a:eq(0)').position().left;
       var width = this.parentElement().find('a:eq(0)').width() / 2;
@@ -105,6 +115,12 @@ function newMap(){
       
       this.parentElement().find('a:eq(0)').html(parsedValue);
       this.parentElement().find('a:eq(1)').html($('input#map_location_name').val());
+      
+      if(this.readyForSaving()){
+        $('.save_bar').show();
+      } else {
+        $('.save_bar').hide();
+      }
     },
     
     initMapValues: function(){
