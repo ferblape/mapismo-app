@@ -48,8 +48,15 @@ table {
 }
 
 /* Sprites */
-.popover h2, .social_networks span, .keywords_list .delete, .location input {
+.popover h2, .social_networks span, .keywords_list .delete, .location input, .pagination a {
   background: transparent url(../../../app/assets/images/sprites.png) 0 0 no-repeat;
+}
+
+/* Rounded */
+.popover, #top_bar a, .social_networks label, .keywords_list li, #content .avatar {
+  -moz-border-radius: 3px; 
+  -webkit-border-radius: 3px;
+  border-radius: 3px;
 }
 
 /* Styles */
@@ -86,7 +93,6 @@ body, input {
   color: #eee;
   text-decoration: none;
   border: 1px solid #48484a;
-  border-radius: 3px;
   display: inline-block;
   padding: 5px 5px 6px 5px;
 }
@@ -117,10 +123,7 @@ a.button:hover, #top_bar a.button:hover {
   position: absolute;
   top: 67px;
   z-index: 11;
-  text-align: left;
-  -moz-border-radius: 3px; 
-  -webkit-border-radius: 3px;
-  border-radius: 3px;
+  text-align: left
 }
 .popover h2 {
   position: relative;
@@ -142,14 +145,11 @@ a.button:hover, #top_bar a.button:hover {
   float: left;
   margin: 10px 0 0 10px;
   border: 1px solid #e9ebed;
-  -moz-border-radius: 3px; 
-  -webkit-border-radius: 3px;
-  border-radius: 3px;
   width: 70px;
   height: 90px;
   text-align: center;
 }
-.social_networks label:hover {
+.social_networks label:hover, .social_networks label.selected {
   border-color: #949495;
   cursor: pointer;
   background: #FFF;
@@ -190,10 +190,7 @@ a.button:hover, #top_bar a.button:hover {
   color: #FFF;
   padding: 6px 26px 6px 6px;
   margin: 0 10px 10px 0;
-  position: relative;
-  -moz-border-radius: 3px; 
-  -webkit-border-radius: 3px;
-  border-radius: 3px;
+  position: relative
 }
 .keywords_list .delete {
   background-position: 2px -147px;
@@ -223,7 +220,7 @@ a.button:hover, #top_bar a.button:hover {
   font-size: 14px;
   font-weight: bold;
   display: block;
-  margin-bottom: 10px;
+  margin-bottom: 4px;
 }
 .when .from, .when .to {
   margin: 10px;
@@ -238,6 +235,7 @@ a.button:hover, #top_bar a.button:hover {
 .when input.time {
   width: 100px;
 }
+
 /* CALENDAR */
 .ui-datepicker {
   border: 1px solid #e9ebed;
@@ -312,4 +310,79 @@ a.button:hover, #top_bar a.button:hover {
 }
 .ui-datepicker-calendar td.ui-datepicker-current-day a {
   color: #FFF;
+}
+
+/* Content area */
+#content {
+  left: auto;
+  right: 18px;
+}
+#content .header {
+  border-bottom: 1px solid #e9ebed;
+  padding: 9px;
+  overflow: hidden;
+}
+#content .item_data {
+  padding-right: 72px;
+}
+#content .avatar {
+  float: left;
+  width: 28px;
+  height: 28px;
+}
+#content .item_data p {
+  padding-left: 37px;
+  color: #7a7a7a;
+  line-height: 15px;
+  margin-top: -2px;
+}
+#content .item_data a {
+  color: #7a7a7a;
+  text-decoration: none;
+}
+#content .item_data a:hover {
+  color: #303030;
+}
+#content .item_data p strong { 
+  color: #303030;
+  font-weight: bold;
+  font-size: 14px;
+}
+.pagination {
+  float: right;
+  width: 71px
+}
+.pagination a {
+  text-indent: -9999em;
+  overflow: hidden;
+  width: 35px;
+  height: 28px;
+  float: left;
+  background-position: 0 -200px;
+}
+.pagination a:hover {
+  background-position: 0 -228px;
+}
+.pagination a.next {
+  border-left: 1px solid #e9ebed;
+  background-position: -36px -200px;
+}
+.pagination a.next:hover {
+  background-position: -36px -228px;
+}
+.pagination a.disabled, .pagination a.disabled:hover {
+    background-position: 0 -256px;
+    cursor: default;
+}
+.pagination a.next.disabled, .pagination a.next.disabled:hover {
+    background-position: -36px -256px
+}
+.content {
+  display: block;
+  margin: 9px;
+  width: 320px;
+  height: 320px;
+}
+.content img {
+  max-width: 100%;
 }
