@@ -16,6 +16,14 @@ class Mapismo
   def self.data_table
     APP_CONFIG[:data_table]
   end
+
+  def self.workers_channel
+    APP_CONFIG[:workers_channel]
+  end
+  
+  def self.workers_password_channel
+    ENV['workers_password_channel']
+  end
   
   def self.oauth_token
     ENV['mapismo_oauth_token']

@@ -3,15 +3,18 @@ development:
   users_table: 'application_users_dev'
   maps_table: 'mapismo_maps'
   data_table: 'mapismo_data'
+  workers_channel: 'mapismo-dev'
 
 test:
   cartodb_username: 'mapismo'
   users_table: 'application_users_test'
   maps_table: 'mapismo_maps'
   data_table: 'mapismo_data'
+  workers_channel: 'mapismo-test'
 
 production:
   cartodb_username: 'mapismo'
   users_table: 'application_users'
   maps_table: 'mapismo_maps'
   data_table: 'mapismo_data'
+  workers_channel: 'mapismo'

@@ -49,8 +49,8 @@ class User
   
   def maps
     connection.run_query("SELECT * from #{Mapismo.maps_table} ORDER BY created_at DESC")
-    if connection.response.code.to_i == 200
-      response = JSON.parse(connection.response.body)
+    if connection.connection.response.code.to_i == 200
+      response = JSON.parse(connection.connection.response.body)
       if response["total_rows"].to_i > 0
         response["rows"].map do |row|
           Map.new(Map.row_to_attributes(row, self))

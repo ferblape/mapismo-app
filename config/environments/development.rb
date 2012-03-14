@@ -35,3 +35,6 @@ MapismoApp::Application.configure do
   # Expands the lines which load the assets
   config.assets.debug = true
 end
+
+require Rails.root.join("spec/support/stubs/redis_mock.rb")
+$redis = RedisMock.new

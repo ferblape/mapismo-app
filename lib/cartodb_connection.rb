@@ -7,7 +7,7 @@ module MapismoApp
   
     def initialize(connection)
       raise "Connection is required" if connection.nil?
-      self.connection = connection
+      @connection = connection
     end
   
     def table_exists?(table_name)
