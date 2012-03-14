@@ -53,7 +53,7 @@ table {
 }
 
 /* Rounded */
-.popover, #top_bar a, .social_networks label, .keywords_list li, #content .avatar {
+.popover, #top_bar a, .social_networks label, .keywords_list li, #content .avatar, .button {
   -moz-border-radius: 3px; 
   -webkit-border-radius: 3px;
   border-radius: 3px;
@@ -74,7 +74,7 @@ body, input {
   height: 100%;
   z-index: 10;
 }
-#top_bar {
+#top_bar, .save_bar {
   position: absolute;
   background: rgba(48, 48, 48, 8.5);
   top: 6px;
@@ -87,14 +87,14 @@ body, input {
   font-size: 18px;
   padding: 6px 0;
   text-shadow: 1px 1px 1px #000;
-  
 }
-#top_bar a {
+#top_bar a, .save_bar a {
   color: #eee;
   text-decoration: none;
   border: 1px solid #48484a;
   display: inline-block;
   padding: 5px 5px 6px 5px;
+  text-shadow: 1px 1px 1px #333;
 }
 #top_bar a:hover, #top_bar a:focus, #top_bar a.selected {
   border-color: #eee;
@@ -102,16 +102,27 @@ body, input {
   background: #303030;
 }
 
-a.button, #top_bar a.button {
+a.button, #top_bar a.button, .save_bar a {
   background: #2185db;
   border: none;
 }
-a.button:hover, #top_bar a.button:hover { 
+a.button:hover, #top_bar a.button:hover, .save_bar a:hover { 
   background: #3498ed
 }
 #top_bar a.button {
   position: absolute;
   right: 18px;
+}
+
+/* Save bar */
+.save_bar {
+  width: 170px;
+  bottom: 12px;
+  top: auto;
+  left: auto;
+  right: 0;
+  text-align: right;
+  padding-right: 18px;
 }
 
 /* Popovers */
