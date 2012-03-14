@@ -128,7 +128,7 @@ a.button:hover, #top_bar a.button:hover {
 .popover h2 {
   position: relative;
   margin-top: -17px;
-  padding: 27px 10px 10px 10px;
+  padding: 31px 10px 14px 10px;
   background-position: center 0;
   border-bottom: 1px solid #e9ebed;
   font-size: 18px;
@@ -333,7 +333,7 @@ a.button:hover, #top_bar a.button:hover {
 #content .item_data p {
   padding-left: 37px;
   color: #7a7a7a;
-  line-height: 15px;
+  line-height: 14px;
   margin-top: -2px;
 }
 #content .item_data a {
@@ -381,8 +381,14 @@ a.button:hover, #top_bar a.button:hover {
   display: block;
   margin: 9px;
   width: 320px;
+}
+.instagram {
   height: 320px;
 }
 .content img {
   max-width: 100%;
+}
+.twitter {
+  font: 18px Georgia, 'Times New Roman', serif;
+  padding-bottom: 4px;
 }
