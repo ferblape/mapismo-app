@@ -15,3 +15,5 @@ vendor/typekit
 coverage/
 .rvmrc
 .exports
+.exports_dev
+.exports_prod
