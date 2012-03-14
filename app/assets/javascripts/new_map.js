@@ -68,7 +68,18 @@ function newMap(){
     },
 
     whereValue: function(value){
-      this.parentElement().find('a:eq(1)').html(value);
+      $('input#map_location_name').val(value);
+      this.geocoder.geocode({'address': value}, function(results, status) {
+        if (status == google.maps.GeocoderStatus.OK) {
+          var latlng = results[0].geometry.location;
+          $('input#map_lat').val(latlng.lat());
+          $('input#map_lon').val(latlng.lng());
+        } else {
+          $('input#map_lat').val(0.0);
+          $('input#map_lon').val(0.0);
+        }
+      });
+      this.updateMapBar();
     },
 
     whenValues: function(fromDate, toDate){
@@ -93,14 +104,17 @@ function newMap(){
       parsedValue += $('input#map_keywords').val().split(",").join(", ");
       
       this.parentElement().find('a:eq(0)').html(parsedValue);
+      this.parentElement().find('a:eq(1)').html($('input#map_location_name').val());
     },
     
     initMapValues: function(){
+      this.geocoder = new google.maps.Geocoder();
       this.whatValues(['flickr','instagram'], ['football','15m']);
       this.whereValue('Madrid');
       this.whenValues('13th October');
-      this.updateMapBar();
     },
+    
+    geocoder: null,
     
     initDOM: function(){
       var that = this;
@@ -123,12 +137,25 @@ function newMap(){
             that.addKeyword($('input#new_keyword').val());
             $('input#new_keyword').val('');
           }
+          if($('input#map_location_name').is(":focus")){
+            that.whereValue($('input#map_location_name').val());
+            $('.popover.where').fadeOut('slow');
+          }
         }
       });
       
-      this.parentElement().find('a').on({
+      this.parentElement().find('a[data-type=what]').on({
         click: function(e){
-          $('.popover.' + $(this).data('type')).toggle();
+          $('.popover.what').toggle();
+          $('#new_keyword').focus();
+          e.preventDefault(); e.stopPropagation();
+        }
+      });
+      
+      this.parentElement().find('a[data-type=where]').on({
+        click: function(e){
+          $('.popover.where').toggle();
+          $('#map_location_name').focus();
           e.preventDefault(); e.stopPropagation();
         }
       });
