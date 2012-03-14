@@ -15,13 +15,23 @@ module MapismoApp
       connection.response.code.to_i == 200
     end
 
-    def create_table(name, schema)
+    def create_table(name, schema, status = :private)
       connection.post("/api/v1/tables", {
         name: name,
         schema: schema
       })
       if connection.response.code.to_i == 200
-        return true
+        if status == :private
+          return true
+        else
+          connection.put("/api/v1/tables/#{name}?privacy=1")
+          if connection.response.code.to_i == 200
+            return true
+          else
+            response = JSON.parse(connection.response.body)
+            raise response["error"][0]
+          end
+        end
       else
         response = JSON.parse(connection.response.body)
         raise response["error"][0]

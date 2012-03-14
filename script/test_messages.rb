@@ -9,7 +9,7 @@ valid_message = {
   cartodb_userid: 33,
   cartodb_auth_token: 'YG7v8YrCbJ6nuHhNkhR9s8r7DtH0iu2WXo5FHszH',
   cartodb_auth_secret: 'mdyHGN3avBUEOzyfEPT23IHCD1jKJdhiSaEJcGE1',
-  source: 'instagram',
+  source: 'flickr',
   keyword: '15m',
   latitude: 40.416691,
   longitude: -3.703611,

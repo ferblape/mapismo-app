@@ -61,6 +61,17 @@ describe "MapismoApp::CartoDBConnection" do
           subject.create_table("new_table_name", "f1 varchar, f2 integer")
         }.should raise_error('error')
       end
+      
+      context "when privacy is set to :public" do
+        it "should update the privacy of the created table" do
+          connection.stubs(:response).returns(mocked_response(200)).then.returns(mocked_response(200))
+          connection.expects(:put).with("/api/v1/tables/new_table_name?privacy=1")
+          connection.expects(:post).with("/api/v1/tables", {name: "new_table_name", schema: "f1 varchar, f2 integer"})
+          subject.stubs(:connection).returns(connection)
+
+          subject.create_table("new_table_name", "f1 varchar, f2 integer", :public).should be_true
+        end
+      end
     end
     
     describe "#reset_table" do
