@@ -6,7 +6,7 @@ feature 'Maps' do
     A new user connects to CartoDB
     And is redirected to new map action
   } do
-    mock_cartodb_oauth(uid: 1)
+    mock_cartodb_oauth(uid: 1, username: 'blat')
     
     user = mock()
     user.stubs(:username).returns('blat')
@@ -49,19 +49,19 @@ feature 'Maps' do
     An existing user with maps connects to CartoDB
     And is redirected to his list of maps
   } do
-    mock_cartodb_oauth(uid: 1)
+    mock_cartodb_oauth(uid: 1, username: 'blat')
     
     map = mock()
     map.stubs(:id).returns(1)
     map.stubs(:name).returns("15M in Madrid")
+    Map.stubs(:find).returns(map)
     
     user = mock()
     user.stubs(:username).returns('blat')
-    user.stubs(:maps).returns([map])
     user.stubs(:id).returns(1)
     User.stubs(:find).with(1).returns(user)
     
-    Map.stubs(:find).returns(map)
+    User.any_instance.stubs(:maps).returns([map])
     
     visit "/"
     

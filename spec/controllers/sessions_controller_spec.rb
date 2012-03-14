@@ -24,11 +24,15 @@ describe SessionsController do
       
       user = mock()
       user.stubs(:maps).returns([])
-      User.expects(:find).with(1).returns(user).times(2)
+      User.expects(:find).with(1).returns(user).once
       
       post :create
-      subject.current_user.should == user
       response.should be_redirect
+
+      current_user = subject.current_user
+      current_user.should be_an_instance_of(User)
+      current_user.username.should == 'blat'
+      current_user.id.should == 1
     end
     
     it "should set as the current_user from a user created" do
@@ -36,15 +40,19 @@ describe SessionsController do
       
       user = mock()
       user.stubs(:maps).returns([])
-      User.expects(:find).with(1).times(2).returns(nil).then.returns(user)
+      User.expects(:find).with(1).times(1).returns(nil)
       User.expects(:create).with({
         id: 1, username: 'blat', 
         token: 'token', secret: 'secret'
       }).returns(user)
       
       post :create
-      subject.current_user.should == user
       response.should be_redirect
+      
+      current_user = subject.current_user
+      current_user.should be_an_instance_of(User)
+      current_user.username.should == 'blat'
+      current_user.id.should == 1
     end
   end
 end
