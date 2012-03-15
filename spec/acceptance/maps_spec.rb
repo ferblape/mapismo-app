@@ -33,7 +33,7 @@ feature 'Maps' do
     
     click "Save map"
     
-    page.should have_content("Instagram photos about 15m in Madrid on Mar 14th - Mar 15th")
+    page.should have_content("This is a map with Instagram photos about 15m in Madrid on Mar 14th - Mar 15th")
   end
   
   pending %q{

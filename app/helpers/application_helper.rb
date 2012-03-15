@@ -18,4 +18,9 @@ module ApplicationHelper
     end
   end
   
+  def cartodb_table_link
+    return "" if @user.nil?
+    "https://#{@user.username}.cartodb.com/tables/#{Mapismo.data_table}/embed_map"
+  end
+  
 end

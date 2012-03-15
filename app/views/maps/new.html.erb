@@ -1,6 +1,7 @@
 <% title "New map" %>
 
 <%= content_for :head do %>
+  <%= javascript_include_tag "map" %>
   <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
   <link rel="shortcut icon" href="http://cartodb.com/favicon/favicon_32x32.ico" />
   <%= javascript_include_tag "//cartodb.s3.amazonaws.com/embed/wax.g.js" %>

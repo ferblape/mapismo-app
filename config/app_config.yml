@@ -2,7 +2,7 @@ development:
   cartodb_username: 'mapismo'
   users_table: 'application_users_dev'
   maps_table: 'mapismo_maps'
-  data_table: 'mapismo_data'
+  data_table: 'mapismo_data_2'
   workers_channel: 'mapismo-dev'
 
 test:

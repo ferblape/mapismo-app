@@ -23,10 +23,10 @@ class MapsController < ApplicationController
   end
 
   def show
-    unless user = User.find(params[:user_id])
+    unless @user = User.find(params[:user_id])
       render_404 and return
     end
-    unless @map = Map.find(user_id: user.id, id: params[:id])
+    unless @map = Map.find(user_id: @user.id, id: params[:id])
       render_404 and return
     end
   end

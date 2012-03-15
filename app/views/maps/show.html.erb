@@ -12,9 +12,10 @@
           TILEHTTP = "https",
           TILESERVER = "cartodb.com",
           SQL_SERVER = 'cartodb.com',
-          global_api_url = '/api/v1/';
+          global_api_url = '/api/v1/',
+          map_id = '<%= @map.id %>';
     
-    var cartodb_sql,
+    var cartodb_sql = '<%= CGI.escape("SELECT * FROM #{Mapismo.data_table}") %>',
         cartodb_style,
         cartodb_params = [];
     
@@ -23,18 +24,14 @@
       if (cartodb_params[i].search('style=%23') != -1) {
         cartodb_style = cartodb_params[i].replace('style=','');
       }
-      if (cartodb_params[i].search('sql=') != -1) {
-        cartodb_sql = cartodb_params[i].replace('sql=','');
-      }
     }
-  </script>
-  
-  <script type="text/javascript">
+    console.log(cartodb_sql);
+    
     $(function() {
 
       var cartodbMapOptions = {
         zoom: 2,
-        center: new google.maps.LatLng(0,0),
+        center: new google.maps.LatLng(<%= @map.lat %>,<%= @map.lon %>),
         disableDefaultUI: true,
         mapTypeId: google.maps.MapTypeId.ROADMAP
       };
@@ -61,7 +58,7 @@
             // Get coordinates and zoom
             if (map_style.zoom && map_style.longitude && map_style.latitude) {
               carto_embed_map.setZoom(map_style.zoom);
-              carto_embed_map.setCenter(new google.maps.LatLng(map_style.latitude,map_style.longitude));
+              // carto_embed_map.setCenter(new google.maps.LatLng(map_style.latitude,map_style.longitude));
             } else {
               getCartoDBBBox();
             }
@@ -91,7 +88,7 @@
           }
 
       // Add wax interaction
-      // addCartoDBInteraction(cartodb_params);
+      addCartoDBInteraction(cartodb_params);
 
       // Zoom to your geometries
       function getCartoDBBBox() {
@@ -161,29 +158,13 @@
         params.cartodb_map.overlayMapTypes.insertAt(0,wax_tile);
         var interaction = wax.g.interaction(params.cartodb_map, tilejson, waxOptions);
 
-
         // Generate tilejson
         function generateTileJson(params) {
           var core_url = TILEHTTP + '://' + params.cartodb_user_name + '.' + TILESERVER;  
           var base_url = core_url + '/tiles/' + params.cartodb_table_name + '/{z}/{x}/{y}';
           var tile_url = base_url + '.png?cache_buster=0';
           var grid_url = base_url + '.grid.json';
-      
-          // SQL?
-          if (params.cartodb_sql) {
-            var query = 'sql=' + params.cartodb_sql;
-            tile_url = wax.util.addUrlData(tile_url, query);
-            grid_url = wax.util.addUrlData(grid_url, query);
-          }
-
-          // Style
-          if (params.cartodb_style) {
-            var style = 'style=' + params.cartodb_style;
-            tile_url = wax.util.addUrlData(tile_url,style);
-            grid_url = wax.util.addUrlData(grid_url,style);
-          }
-
-      
+            
           // Build up the tileJSON
           return {
             blankImage: TILEHTTP + '://cartodb.s3.amazonaws.com/embed/blank_tile.png', 
@@ -219,8 +200,45 @@
 <% end %>
 
 <header id="top_bar">
-  <%= @map.name %>
+  This is a map with <%= @map.name %>
 </header>
+
+<div class="popover" id="content" style="display:none">
+  <div class="header">
+    <nav class="pagination">
+      <a href="#" class="prev">Previous item</a>
+      <a href="#" class="next disabled">Next item</a>
+    </nav>
+
+    <div class="item_data">
+      <img src="" alt="" class="avatar">
+      <p>
+        <strong></strong><br>
+        <span class="date"></span> · <a href="#" target="blank"></a>
+      </p>
+    </div>
+  </div>
+ 
+  <!-- 
+  <div class="content instagram">
+    <img src="http://distilleryimage5.instagram.com/5657c4ae6d6611e1a87612313804ec91_7.jpg">    
+  </div>
+  <div class="content twitter">
+    Y no so perdais nuestra súper maquina para movernos por Melbourne... A tope d power!!! <a href="http://yfrog.com/obmqdzwfj" target="blank">http://yfrog.com/obmqdzwfj</a>     
+  </div>
+  <div class="content flickr">
+    <img src="http://farm7.staticflickr.com/6031/6323911636_7375c007d5.jpg" alt="photo title">    
+  </div> -->
+  <div class="content"></div>
+</div>
+
+<div class="popover options">
+  <ul>
+    <li><a href="<%= cartodb_table_link %>">View on CartoDB</a></li>
+    <li><span>Link: <input type="text" value="<%= cartodb_table_link %>"></span></li>
+    <li><span>Embed: <input type="text" value="http://kacmkanvjfblscndv.dvkdvkd"></span></li>
+  </ul>
+</div>
 
 <div id="timeline"></div>
 
@@ -232,8 +250,3 @@
   <a href="#zoom_in" class="cartodb_map_embed_zoom_in">+</a>
   <a href="#zoom_out" class="cartodb_map_embed_zoom_out">-</a>
 </span>
-
-<%= content_for :js do %>
-  MAPISMO.newMap.initMapValues();
-  MAPISMO.newMap.initDOM();
-<% end %>

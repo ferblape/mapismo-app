@@ -18,7 +18,6 @@ function CartoDBInfowindow(params) {
 
 CartoDBInfowindow.prototype = new google.maps.OverlayView();
 
-
 CartoDBInfowindow.prototype.getActiveColumns = function(params) {
   var that = this;
   $.ajax({
@@ -62,24 +61,8 @@ CartoDBInfowindow.prototype.draw = function() {
   
   var div = this.div_;
   if (!div) {
-    div = this.div_ = document.createElement('DIV');
-    div.className = "cartodb_infowindow";
-
-    div.innerHTML = '<a href="#close" class="close">x</a>'+
-                    '<div class="outer_top">'+
-                      '<div class="top">'+
-                      '</div>'+
-                    '</div>'+
-                    '<div class="bottom">'+
-                      '<label>id:1</label>'+
-                    '</div>';
+    div = this.div_ = $('#content');
     
-    $(div).find('a.close').click(function(ev){
-      ev.preventDefault();
-      ev.stopPropagation();
-      me.hide();
-    });
-
     google.maps.event.addDomListener(div, 'click', function (ev) {
       ev.preventDefault ? ev.preventDefault() : ev.returnValue = false;
     });
@@ -100,19 +83,18 @@ CartoDBInfowindow.prototype.draw = function() {
     	ev.stopPropagation ? ev.stopPropagation() : window.event.cancelBubble = true;
     });
     
-    var panes = this.getPanes();
-    panes.floatPane.appendChild(div);
-
-    div.style.opacity = 0;
+    // var panes = this.getPanes();
+    // panes.floatPane.appendChild(div);
+    // div.style.opacity = 0;
   }
 
-  var pixPosition = this.getProjection().fromLatLngToDivPixel(this.latlng_);
-  if (pixPosition) {
-    div.style.width = this.width_ + 'px';
-    div.style.left = (pixPosition.x - 49) + 'px';
-    var actual_height = - $(div).height();
-    div.style.top = (pixPosition.y + actual_height + 5) + 'px';
-  }
+  // var pixPosition = this.getProjection().fromLatLngToDivPixel(this.latlng_);
+  // if (pixPosition) {
+  //   div.style.width = this.width_ + 'px';
+  //   div.style.left = (pixPosition.x - 49) + 'px';
+  //   var actual_height = - $(div).height();
+  //   div.style.top = (pixPosition.y + actual_height + 5) + 'px';
+  // }
 };
 
 
@@ -130,6 +112,19 @@ CartoDBInfowindow.prototype.setPosition = function() {
   }
 }
 
+CartoDBInfowindow.prototype.updateInfoWindow = function(row){
+  $('#content .item_data img').attr('src', row.avatar_url);
+  $('#content .item_data p strong').html(row.username);
+  $('#content .item_data p span.date').html(row.date);
+  $('#content .item_data p a').html(row.source);
+  $('#content .item_data p a').attr('href', row.permalink);
+  var content = $('#content .content');
+  content.removeClass('flickr').removeClass('instagram').removeClass('twitter');
+  content.addClass(row.source);
+  if(row.source == 'instagram' || row.source == 'flickr'){
+    content.html('<img src="' + row.data + '" />');
+  }
+}
 
 CartoDBInfowindow.prototype.open = function(feature,latlng){
   var that = this;
@@ -142,7 +137,8 @@ CartoDBInfowindow.prototype.open = function(feature,latlng){
     url: TILEHTTP + '://'+ this.params_.cartodb_user_name + '.' + SQL_SERVER + '/api/v1/sql/?q='+escape('select '+that.columns_+' from '+ this.params_.cartodb_table_name + ' where cartodb_id=' + feature)+'&callback=?',
     dataType: 'jsonp',
     success: function(result) {
-      positionateInfowindow(result.rows[0]);
+      that.updateInfoWindow(result.rows[0]);
+      $('#content').show();
     },
     error: function(e) {}
   });
@@ -161,8 +157,8 @@ CartoDBInfowindow.prototype.open = function(feature,latlng){
       }
       
       $('div.cartodb_infowindow div.bottom label').html('id: <strong>'+feature+'</strong>');
-      that.moveMaptoOpen();
-      that.setPosition();     
+      // that.moveMaptoOpen();
+      // that.setPosition();     
     }
   }
 } 
