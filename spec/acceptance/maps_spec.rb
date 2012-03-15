@@ -18,19 +18,10 @@ feature 'Maps' do
     
     click "Login using CartoDB"
     
-    page.should have_content("Hi blat!")
-    page.should have_content("Create a new map")
-    
-    fill_in "name", with: "15M in Madrid"
-    fill_in "keywords", with: "15m, madrid"
-    check "flickr"
-    check "instagram"
-    fill_in "location", with: "Madrid"
-    fill_in "radius", with: "1500"
-    fill_in "latitude", with: 40.416691
-    fill_in "longitude", with: -3.700345
-    fill_in "start date", with: "2011-05-15+00:00:00"
-    fill_in "end date", with: "2011-05-15+23:59:59"
+    page.should have_content("Creating a map with")
+    page.find("#top_bar").all("a").first.click
+    uncheck "Flickr"
+    page.find("ul#keywords_list").find("a.delete").click
     
     map = mock()
     map.stubs(:id).returns(1)
@@ -39,13 +30,12 @@ feature 'Maps' do
     Map.stubs(:new).returns(map)
     Map.stubs(:find).returns(map)
     
-    click "save this map"
+    click "Save map"
     
     page.should have_content("Your map has been created successfully")
-    page.should have_content("15M in Madrid")
   end
   
-  scenario %q{
+  pending %q{
     An existing user with maps connects to CartoDB
     And is redirected to his list of maps
   } do
