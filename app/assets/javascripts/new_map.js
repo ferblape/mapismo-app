@@ -172,8 +172,10 @@ function newMap(){
       
       if(this.readyForSaving()){
         $('.save_bar').show();
+        $('#top_bar a.button').attr('disabled', null);
       } else {
         $('.save_bar').hide();
+        $('#top_bar a.button').attr('disabled', 'disabled');
       }
       
       var fromDate = this._formatDateShort($('#from_day').datepicker('getDate'));
