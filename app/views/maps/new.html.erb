@@ -9,13 +9,15 @@
   <a href="#" class="button">Go</a>
 </header>
 
+<%= form_for :map, url: maps_path do |f|%>
 <div class="save_bar">
   Done?
-  <a href="#" class="button">Save map</a>
+    <a href="#" class="button">Save map</a>
 </div>
 
 <div class="popover what">
   <h2>What</h2>
+  
   <div class="social_networks">
     <label for="twitter" class="twitter">
       <span>Twitter</span>
@@ -42,8 +44,9 @@
   <input id="map_keywords" name="map[keywords]" type="hidden" value="" />
 </div>
 
-<div class="popover where" style="left: 380px">
+<div class="popover where">
   <h2>Where</h2>
+  
   <div class="location">
     <input id="map_location_name" name="map[location_name]" size="30" type="text" value="" />
   </div>
@@ -54,50 +57,27 @@
   <input id="map_radius" name="map[radius]" type="hidden" value="1000" />
 </div>
 
-<div class="popover when" style="left: 760px">
-	<h2>When</h2>
-	<form>
-	  <div class="from">
-	    <label for="from_day">From</label>
-	    <input type="text" id="from_day" class="day">
-	    <input type="text" class="time">
-	  </div>
-	  <div class="to">
-	    <label for="to_day">To</label>
-	    <input type="text" id="to_day" class="day">
-	    <input type="text" class="time">
-	  </div>
-	</form>
+<div class="popover when">
+  <h2>When</h2>
+  
+  <div class="from">
+    <label for="from_day">From</label>
+    <input type="text" id="from_day" class="day" />
+    <input type="text" id="from_time" class="time" />
+  </div>
+  <div class="to">
+    <label for="to_day">To</label>
+    <input type="text" id="to_day" class="day" />
+    <input type="text" id="to_time" class="time" />
+  </div>
+  <input id="map_start_date" name="map[start_date]" type="hidden" value="" />
+  <input id="map_end_date" name="map[end_date]" type="hidden" value="" />
 </div>
-
-<div id="timeline">
-  
-</div>
-
-
-<div id="map"></div>  
-
-
-<h2>Create a new map</h2>
-
-<%= form_for :map, url: maps_path do |f| %>
-  <%= f.label :start_date, "start date" %>
-  <%= f.text_field :start_date %>
-  
-  <%= f.label :end_date, "end date" %>
-  <%= f.text_field :end_date %>
-  
-  <%= f.submit "save this map" %>
 <% end %>
 
-<style>
-label {
-  display: block;
-}
-.ui-slider  {
-  height: 100px;
-}
-</style>
+<div id="timeline"></div>
+
+<div id="map"></div>
 
 <%= content_for :js do %>
   MAPISMO.newMap.initMapValues();

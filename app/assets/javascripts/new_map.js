@@ -1,5 +1,49 @@
+Date.prototype.monthNames = [
+    "January", "February", "March",
+    "April", "May", "June",
+    "July", "August", "September",
+    "October", "November", "December"
+];
+
+Date.prototype.getMonthName = function() {
+    return this.monthNames[this.getMonth()];
+};
+Date.prototype.getShortMonthName = function () {
+    return this.getMonthName().substr(0, 3);
+};
+
 function newMap(){
   return({
+    
+    _formatDateLong: function(date){
+      if(date != null) {
+        return date.getFullYear() + '-' + parseInt(date.getMonth()+1) + '-' + date.getDate();
+      } else {
+        return "";
+      }
+    },
+    
+    _formatTimeLong: function(time){
+      if(time != null) {
+        return '+' + time.getHours() + ':' + time.getMinutes() + ':' + time.getUTCSeconds();
+      } else {
+        return "";
+      }
+    },
+
+    _formatDateShort: function(date){
+      if(date != null) {
+        var day = date.getDate();
+        var ordinal = "th";
+        if(day == 1) { ordinal = 'st' };
+        if(day == 2) { ordinal = 'nd' };
+        if(day == 3) { ordinal = 'rd' };
+        return date.getShortMonthName() + ' ' + day + ordinal;
+      } else {
+        return "";
+      }
+    },
+    
     parentElement: function(){
       return $('header#top_bar');
     },
@@ -11,24 +55,26 @@ function newMap(){
       if($('input#map_location_name').val().trim() == ""){
         return false
       }
+      if($('input#map_start_date').val().trim() == ""){
+        return false
+      }
+      if($('input#map_end_date').val().trim() == ""){
+        return false
+      }
       return true;
     },
     
-    whatPosition: function(){
+    updatePopoverPositions: function(){
       var left = this.parentElement().find('a:eq(0)').position().left;
       var width = this.parentElement().find('a:eq(0)').width() / 2;
       $('.popover.what').css('left', left + width - $('.popover.what').width()/2);
-    },
-
-    wherePosition: function(){
-      var left = this.parentElement().find('a:eq(1)').position().left;
-      var width = this.parentElement().find('a:eq(1)').width() / 2;
+      
+      left = this.parentElement().find('a:eq(1)').position().left;
+      width = this.parentElement().find('a:eq(1)').width() / 2;
       $('.popover.where').css('left', left + width - $('.popover.where').width()/2);
-    },
-
-    whenPosition: function(){
-      var left = this.parentElement().find('a:eq(2)').position().left;
-      var width = this.parentElement().find('a:eq(2)').width() / 2;
+      
+      left = this.parentElement().find('a:eq(2)').position().left;
+      width = this.parentElement().find('a:eq(2)').width() / 2;
       $('.popover.when').css('left', left + width - $('.popover.when').width()/2);
     },
     
@@ -97,8 +143,11 @@ function newMap(){
       this.updateMapBar();
     },
 
-    whenValues: function(fromDate, toDate){
-      this.parentElement().find('a:eq(2)').html(fromDate);
+    setWhenValues: function(){
+      $('#map_start_date').val(this._formatDateLong($('#from_day').datepicker('getDate'))+
+                                this._formatTimeLong($.timePicker("#from_time").getTime()));
+      $('#map_end_date').val(this._formatDateLong($('#to_day').datepicker('getDate'))+
+                              this._formatTimeLong($.timePicker("#to_time").getTime()));
     },
     
     updateMapBar: function(){
@@ -126,26 +175,28 @@ function newMap(){
       } else {
         $('.save_bar').hide();
       }
+      
+      var fromDate = this._formatDateShort($('#from_day').datepicker('getDate'));
+      var toDate = this._formatDateShort($('#to_day').datepicker('getDate'));
+      this.parentElement().find('a:eq(2)').html(fromDate + ' - ' + toDate);
+      
+      this.updatePopoverPositions();
     },
-    
+
     initMapValues: function(){
       this.geocoder = new google.maps.Geocoder();
       this.whatValues(['flickr','instagram'], ['football','15m']);
       this.whereValue('Madrid');
-      this.whenValues('13th October');
     },
-    
+
     geocoder: null,
-    
+
     initDOM: function(){
       var that = this;
       
       $('.popover').hide();
       $('.save_bar').hide();
-      this.whatPosition();
-      this.wherePosition();
-      this.whenPosition();
-      
+
       // radius slider
       $('#radius-picker').slider({
         range: 'min',
@@ -158,6 +209,47 @@ function newMap(){
         }
       });
       
+      // Date pickers
+      $('#from_day').datepicker({
+        dateFormat: 'yy-mm-dd',
+        onSelect: function(dateText, inst) {
+          var toDate = new Date($('#to_day').datepicker('getDate'));
+          var fromDate = new Date(dateText);
+          if(fromDate > toDate){
+            $('#to_day').datepicker('setDate', that._formatDateLong(new Date(new Date().setDate(fromDate.getDate() +2))));
+          }
+          that.updateMapBar();
+          that.setWhenValues();
+        }
+      });
+      $('#to_day').datepicker({
+        dateFormat: 'yy-mm-dd',
+        onSelect: function(dateText, inst) {
+          that.updateMapBar();
+          that.setWhenValues();
+        }
+      });
+      
+      var toDate = new Date();
+      var fromDate = new Date();
+      fromDate.setDate(fromDate.getDate() - 1);
+      $('#from_day').datepicker('setDate', this._formatDateLong(fromDate));
+      $('#to_day').datepicker('setDate', this._formatDateLong(toDate));
+      
+      // Time pickers
+      $("#from_time, #to_time").timePicker();
+      $.timePicker("#from_time").setTime('00:00');
+      $.timePicker("#to_time").setTime('00:00');
+      
+      $("#from_time, #to_time").on({
+        change: function(){
+          that.setWhenValues();
+        }
+      });
+      this.setWhenValues();
+      
+      this.updateMapBar();
+
       // handle keyboard strokes
       $(document).keyup(function(e) {
         // escape key
@@ -176,7 +268,7 @@ function newMap(){
           }
         }
       });
-      
+
       this.parentElement().find('a[data-type=what]').on({
         click: function(e){
           $('.popover').hide();
@@ -185,12 +277,20 @@ function newMap(){
           e.preventDefault(); e.stopPropagation();
         }
       });
-      
+
       this.parentElement().find('a[data-type=where]').on({
         click: function(e){
           $('.popover').hide();
           $('.popover.where').show();
           $('#map_location_name').focus();
+          e.preventDefault(); e.stopPropagation();
+        }
+      });
+      
+      this.parentElement().find('a[data-type=when]').on({
+        click: function(e){
+          $('.popover').hide();
+          $('.popover.when').show();
           e.preventDefault(); e.stopPropagation();
         }
       });
@@ -201,13 +301,21 @@ function newMap(){
           e.preventDefault(); e.stopPropagation();
         }
       });
-      
+
       $('ul#keywords_list').on('click', 'a.delete', function(e){
         var parent = $(this).parents('li');
         that.removeKeyword(parent.text().replace("Remove", ""));
         parent.remove();
         e.preventDefault(); e.stopPropagation();
       });
+      
+      $('a.button').on({
+        click: function(e){
+          if($(this).parents('form').length > 0){
+            $(this).parents('form').submit();
+          }
+        }
+      })
     }
   });
 }
@@ -215,4 +323,3 @@ function newMap(){
 var MAPISMO = {
   newMap: newMap()
 };
-

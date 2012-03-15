@@ -143,7 +143,7 @@ class Map
   def validate_date(value)
     value = value.to_s
     unless value.blank?
-      raise "Invalid format" if value !~ /\d{4}-\d{2}-\d{2}\+\d{2}:\d{2}:\d{2}/
+      raise "Invalid format" if value !~ /\d{4}-\d{1,2}-\d{1,2}\+\d{1,2}:\d{1,2}:\d{1,2}/
       begin
         Time.parse(value)
       rescue
