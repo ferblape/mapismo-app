@@ -48,7 +48,7 @@ table {
 }
 
 /* Sprites */
-.popover h2, .social_networks span, .keywords_list .delete, .location input, .pagination a, .play, .pause, a.options {
+.popover h2, .social_networks span, .keywords_list .delete, .location input, .pagination a, .play, .pause, a.options, .ui-datepicker-prev, .ui-datepicker-next {
   background: transparent image-url("sprites.png") 0 0 no-repeat;
 }
 
@@ -95,7 +95,7 @@ body, input {
 #top_bar a, .save_bar a {
   color: #eee;
   text-decoration: none;
-  border: 1px solid #48484a;
+  border: 1px solid #6d6d6e;
   display: inline-block;
   padding: 5px 5px 6px 5px;
   text-shadow: 1px 1px 1px #333;
@@ -103,7 +103,7 @@ body, input {
 #top_bar a:hover, #top_bar a:focus, #top_bar a.selected {
   border-color: #eee;
   outline: none;
-  background: #303030;
+/*  background: #303030;*/
 }
 
 a.button, #top_bar a.button, .save_bar a {
@@ -321,6 +321,10 @@ a.options {
   box-shadow: 0px 0px 6px #333;
   display: none;
 }
+.ui-datepicker a {
+  color: #303030;
+  text-decoration: none;
+}
 .add .ui-datepicker span {
   font: normal 14px 'Lucida Grande', 'Lucida Sans', 'Helvetica Neue', sans-serif;
   color: #303030;
@@ -330,18 +334,18 @@ a.options {
   width: 32px;
   height: 32px;
   text-indent: -1000em;
-  background-position: -268px -991px;
+  background-position: -138px -200px;
   cursor: pointer;
 }
 .ui-datepicker-prev:hover {
-  background-position: -308px -991px;
+  background-position: -178px -200px;
 } 
 .ui-datepicker-next {
   float: right;
-  background-position: -348px -991px;
+  background-position: -218px -200px;
 }
 .ui-datepicker-next:hover {
-  background-position: -388px -991px;
+  background-position: -258px -200px;
 }
 .ui-datepicker-title {
   padding: 8px 0;
@@ -385,6 +389,23 @@ a.options {
 .ui-datepicker-calendar td.ui-datepicker-current-day a {
   color: #FFF;
 }
+
+/* Slider */
+.ui-slider { position: relative; text-align: left; }
+.ui-slider .ui-slider-handle { position: absolute; z-index: 2; width: 1.2em; height: 1.2em; cursor: default; }
+.ui-slider .ui-slider-range { position: absolute; z-index: 1; font-size: .7em; display: block; border: 0; background-position: 0 0; }
+
+.ui-slider-horizontal { height: .8em; }
+.ui-slider-horizontal .ui-slider-handle { top: -.3em; margin-left: -.6em; }
+.ui-slider-horizontal .ui-slider-range { top: 0; height: 100%; }
+.ui-slider-horizontal .ui-slider-range-min { left: 0; }
+.ui-slider-horizontal .ui-slider-range-max { right: 0; }
+
+.ui-slider-vertical { width: .8em; height: 100px; }
+.ui-slider-vertical .ui-slider-handle { left: -.3em; margin-left: 0; margin-bottom: -.6em; }
+.ui-slider-vertical .ui-slider-range { left: 0; width: 100%; }
+.ui-slider-vertical .ui-slider-range-min { bottom: 0; }
+.ui-slider-vertical .ui-slider-range-max { top: 0; }
 
 /* Content area */
 #content {
