@@ -5,12 +5,11 @@
   <title><%= yield(:title).blank? ? "Mapismo" : yield(:title) %></title>
   <%= stylesheet_link_tag "application" %>
   <%= javascript_include_tag "application" %>
-  <%= javascript_include_tag "//maps.google.com/maps/api/js?sensor=false" %>
   <%= csrf_meta_tags %>
   <!--[if IE]>
     <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
   <![endif]-->
-  
+  <%= yield :head %>
   <script type="text/javascript">
   $(document).ready(function() {
     <%= yield :js %>
