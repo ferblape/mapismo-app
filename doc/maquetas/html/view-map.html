@@ -4,7 +4,8 @@
 <head>
 	<meta charset="utf-8">
 	<title>View map</title>
-	<link rel="stylesheet" href="../stylesheets/mapismo.css">
+	<link rel="stylesheet" href="http://localhost:3000/assets/map.css">
+	<link rel="stylesheet" href="http://localhost:3000/assets/mapismo.css">
 	<!--[if IE]>
           <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
   <![endif]-->
@@ -74,7 +75,13 @@
     <a href="#" class="button options">Options</a>
   </div>
 	
-  <div id="map"></div>  
+  <div id="outer_map_cartodb_container">
+    <div id="map_cartodb_container"></div>
+  </div>
 
+  <span class="cartodb_map_controls">
+    <a href="#zoom_in" class="cartodb_map_embed_zoom_in">+</a>
+    <a href="#zoom_out" class="cartodb_map_embed_zoom_out">-</a>
+  </span>
 </body>
 </html>
