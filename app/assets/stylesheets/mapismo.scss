@@ -407,6 +407,20 @@ a.options {
 .ui-slider-vertical .ui-slider-range-min { bottom: 0; }
 .ui-slider-vertical .ui-slider-range-max { top: 0; }
 
+#radius-picker {
+  margin: 0 12px 9px 10px;
+}
+.ui-slider {
+  background: #fafafa;
+  border: 1px solid #606060;
+}
+.ui-slider-range {
+  background: #ddd;
+}
+.ui-slider-handle {
+  background: #303030;
+}
+
 /* Content area */
 #content {
   left: auto;
