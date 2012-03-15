@@ -9,7 +9,8 @@ describe 'User' do
       id: 1,
       username: 'blat',
       token: 'token',
-      secret: 'secret'
+      secret: 'secret',
+      data_table_id: 3
     })
   end
   
@@ -29,19 +30,25 @@ describe 'User' do
     subject.secret.should == 'secret'
   end
   
+  it "should have an attribute data_table_id" do
+    subject.data_table_id.should == 3
+  end
+  
   describe '.find' do
     it "should return an instance of user with the values of the row if exists" do
       row = {
         "cartodb_user_id" => 1,
         "cartodb_username" => "blat",
         "oauth_token" => "token",
-        "oauth_secret" => "secret"
+        "oauth_secret" => "secret",
+        "data_table_id" => "3"
       }
       $mapismo_conn.stubs(:find_row).returns(row)
       user = User.find(1)
       user.should_not be_nil
       user.should be_an_instance_of(User)
       user.username.should == "blat"
+      user.data_table_id.should == 3
     end
     
     it "should return nil if the user doesn't exist" do
@@ -89,6 +96,33 @@ describe 'User' do
     end
   end
   
+  describe "#update_data_table_id!" do
+    it "should get the id of data table and update users table" do
+      body = [
+        {"id"=>429, "name"=>"mapismo_data", "privacy"=>"PUBLIC", "tags"=>""}
+      ]
+      
+      response = mock()
+      response.stubs(:code).returns("200")
+      response.stubs(:body).returns(body.to_json)
+      
+      connection = mock()
+      connection.stubs(:response).returns(response)
+      
+      cartodb_connection = mock()
+      cartodb_connection.stubs(:connection).returns(connection)
+      cartodb_connection.expects(:get).once.with("/api/v1/tables")
+      User.any_instance.stubs(:connection).returns(cartodb_connection)
+      
+      mapismo_conn_response = mock()
+      mapismo_conn_response.stubs(:code).returns("200")
+      $mapismo_conn.stubs(:response).returns(mapismo_conn_response)
+      $mapismo_conn.expects(:run_query).with('UPDATE application_users_test SET data_table_id = 429 WHERE cartodb_user_id = 1').once
+      
+      subject.update_data_table_id!
+    end
+  end
+  
   describe '.create' do
     let(:attributes) do
       {
@@ -114,20 +148,34 @@ describe 'User' do
         cartodb_user_id: attributes[:id],
         cartodb_username: attributes[:username],
         oauth_token: attributes[:token],
-        oauth_secret: attributes[:secret]
+        oauth_secret: attributes[:secret],
+        data_table_id: nil
       }
       $mapismo_conn.expects(:insert_row).with(Mapismo.users_table, attrs_converted).returns(true)
+      User.any_instance.stubs(:update_data_table_id!).returns(true)
+      
       User.create(attributes)
     end
     
     it "should setup the tables for the new user" do
       $mapismo_conn.stubs(:insert_row).returns(true)
+      User.any_instance.stubs(:update_data_table_id!).returns(true)
+      
       User.any_instance.expects(:setup_cartodb_tables!).once
       User.create(attributes)
     end
     
     it "should return a new user object" do
       $mapismo_conn.stubs(:insert_row).returns(true)
+      User.any_instance.stubs(:update_data_table_id!).returns(true)
+      user = User.create(attributes)
+      user.should be_an_instance_of(User)
+      user.username.should == "blat"
+    end
+    
+    it "should update data_table_id value from the user" do
+      $mapismo_conn.stubs(:insert_row).returns(true)
+      User.any_instance.expects(:update_data_table_id!).once.returns(true)
       user = User.create(attributes)
       user.should be_an_instance_of(User)
       user.username.should == "blat"

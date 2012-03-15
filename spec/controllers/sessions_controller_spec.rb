@@ -24,6 +24,7 @@ describe SessionsController do
       
       user = mock()
       user.stubs(:maps).returns([])
+      user.stubs(:data_table_id).returns(100)
       User.expects(:find).with(1).returns(user).once
       
       post :create
@@ -33,6 +34,7 @@ describe SessionsController do
       current_user.should be_an_instance_of(User)
       current_user.username.should == 'blat'
       current_user.id.should == 1
+      current_user.data_table_id.should == 100
     end
     
     it "should set as the current_user from a user created" do
@@ -40,6 +42,8 @@ describe SessionsController do
       
       user = mock()
       user.stubs(:maps).returns([])
+      user.stubs(:data_table_id).returns(100)
+
       User.expects(:find).with(1).times(1).returns(nil)
       User.expects(:create).with({
         id: 1, username: 'blat', 
@@ -53,6 +57,7 @@ describe SessionsController do
       current_user.should be_an_instance_of(User)
       current_user.username.should == 'blat'
       current_user.id.should == 1
+      current_user.data_table_id.should == 100
     end
   end
 end

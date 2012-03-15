@@ -2,13 +2,14 @@
 
 class User
   
-  attr_reader :id, :username, :token, :secret
+  attr_reader :id, :username, :token, :secret, :data_table_id
   
   def initialize(attributes)
     @id = attributes[:id]
     @username = attributes[:username]
     @token = attributes[:token]
     @secret = attributes[:secret]
+    @data_table_id = attributes[:data_table_id].to_i
   end
 
   def self.find(user_id)
@@ -17,7 +18,8 @@ class User
         id: row["cartodb_user_id"],
         username: row["cartodb_username"],
         token: row["oauth_token"],
-        secret: row["oauth_secret"]
+        secret: row["oauth_secret"],
+        data_table_id: row["data_table_id"]
       })
     else
       nil
@@ -29,11 +31,14 @@ class User
         cartodb_user_id: attributes[:id],
         cartodb_username: attributes[:username],
         oauth_token: attributes[:token],
-        oauth_secret: attributes[:secret]
+        oauth_secret: attributes[:secret],
+        data_table_id: nil
       })
       
       user = new(attributes)
       user.setup_cartodb_tables!
+      user.update_data_table_id!
+      
       user
     else
       raise "Error creating user #{$!}"
@@ -44,6 +49,7 @@ class User
     maps_table_schema = "name varchar, sources varchar, keywords varchar, start_date varchar," + 
                         "end_date varchar, radius integer, location_name varchar, lat float, lon float"
     connection.create_table(Mapismo.maps_table, maps_table_schema)
+    
     data_table_schema = "map_id integer, avatar_url varchar, username varchar, date timestamp," +
                         "permalink varchar, data varchar, the_geom geometry, source varchar," +
                         "source_id varchar"
@@ -63,6 +69,24 @@ class User
       end
     else
       []
+    end
+  end
+  
+  def update_data_table_id!
+    connection.get("/api/v1/tables")
+    if connection.connection.response.code.to_i == 200
+      tables = JSON.parse(connection.connection.response.body)
+      id = tables.select{ |t| t["name"] == Mapismo.data_table }.first["id"]
+      $mapismo_conn.run_query("UPDATE #{Mapismo.users_table} SET data_table_id = #{id} WHERE cartodb_user_id = #{self.id}")
+      if $mapismo_conn.response.code.to_i == 200
+        return true
+      else
+        response = JSON.parse($mapismo_conn.response.body)
+        raise response["error"][0]
+      end
+    else
+      response = JSON.parse(connection.response.body)
+      raise response["error"][0]
     end
   end
   
