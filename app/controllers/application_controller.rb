@@ -8,7 +8,8 @@ class ApplicationController < ActionController::Base
   def current_user
     if session[:user_id]
       @current_user ||= User.new({id: session[:user_id], username: session[:username],
-                                  token: session[:token], secret: session[:secret]})
+                                  token: session[:token], secret: session[:secret],
+                                  data_table_id: session[:data_table_id]})
     end
     @current_user
   end

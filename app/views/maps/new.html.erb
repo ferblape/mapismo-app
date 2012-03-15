@@ -1,14 +1,13 @@
 <% title "New map" %>
 
 <%= content_for :head do %>
-  <%= javascript_include_tag "//maps.google.com/maps/api/js?sensor=false" %>
   <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
   <link rel="shortcut icon" href="http://cartodb.com/favicon/favicon_32x32.ico" />
   <%= javascript_include_tag "//cartodb.s3.amazonaws.com/embed/wax.g.js" %>
   
   <script type="text/javascript">
     var cartodb_table_name  = "<%= Mapismo.data_table %>",
-        cartodb_table_id    = "429",
+        cartodb_table_id    = "<%= current_user.data_table_id %>",
         cartodb_user_name   = "<%= current_user.username %>",
           TILEHTTP = "https",
           TILESERVER = "cartodb.com",
@@ -78,7 +77,8 @@
         },
         error: function(e){}
       });
-
+      
+      
       // Necessary params for wax and infowindow
       var cartodb_params = {
             cartodb_sql         : cartodb_sql,

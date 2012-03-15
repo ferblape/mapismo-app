@@ -11,7 +11,8 @@ namespace :mapismo do
         puts " - cartodb_username: <string>"
         puts " - oauth_token: <string>"
         puts " - oauth_secret: <string>"
-        if $mapismo_conn.create_table(Mapismo.users_table, "cartodb_user_id integer, cartodb_username varchar, oauth_token varchar, oauth_secret varchar")
+        puts " - data_table_id: <integer>"
+        if $mapismo_conn.create_table(Mapismo.users_table, "cartodb_user_id integer, cartodb_username varchar, oauth_token varchar, oauth_secret varchar, data_table_id integer")
           puts "[OK] Table #{Mapismo.users_table} created successfully"
         else
           puts "[ERROR] #{response.body.inspect}"

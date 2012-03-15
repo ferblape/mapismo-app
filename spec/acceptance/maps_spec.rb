@@ -11,6 +11,7 @@ feature 'Maps' do
     user = mock()
     user.stubs(:username).returns('blat')
     user.stubs(:maps).returns([])
+    user.stubs(:data_table_id).returns(3)
     user.stubs(:id).returns(1)
     User.stubs(:find).with(1).returns(user)
     
