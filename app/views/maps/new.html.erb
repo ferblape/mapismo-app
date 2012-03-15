@@ -228,6 +228,8 @@
 </header>
 
 <%= form_for :map, url: maps_path do |f|%>
+
+<input type="hidden" name="map[name]" value="" id="map_name" />
 <div class="save_bar">
   Done?
   <a href="#" class="button">Save map</a>

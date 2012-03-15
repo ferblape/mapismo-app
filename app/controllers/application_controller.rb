@@ -18,6 +18,10 @@ class ApplicationController < ActionController::Base
     !!current_user
   end
   
+  def render_404
+    render file: "public/404.html", status: 404, layout: false
+  end
+  
   protected
   
   def login_required

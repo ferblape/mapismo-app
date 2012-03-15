@@ -13,7 +13,7 @@ feature 'Maps' do
     user.stubs(:maps).returns([])
     user.stubs(:data_table_id).returns(3)
     user.stubs(:id).returns(1)
-    User.stubs(:find).with(1).returns(user)
+    User.stubs(:find).returns(user)
     
     visit "/"
     
@@ -27,13 +27,13 @@ feature 'Maps' do
     map = mock()
     map.stubs(:id).returns(1)
     map.stubs(:save).returns(true)
-    map.stubs(:name).returns("15M in Madrid")
+    map.stubs(:name).returns("Instagram photos about 15m in Madrid on Mar 14th - Mar 15th")
     Map.stubs(:new).returns(map)
     Map.stubs(:find).returns(map)
     
     click "Save map"
     
-    page.should have_content("Your map has been created successfully")
+    page.should have_content("Instagram photos about 15m in Madrid on Mar 14th - Mar 15th")
   end
   
   pending %q{

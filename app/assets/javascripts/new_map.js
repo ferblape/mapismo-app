@@ -183,6 +183,15 @@ function newMap(){
       this.parentElement().find('a:eq(2)').html(fromDate + ' - ' + toDate);
       
       this.updatePopoverPositions();
+      
+      var name = "";
+      $('#top_bar').text().split('\n').forEach(function(s){
+        s = s.trim();
+        if(s != "Go" && s != ""){
+          name += s + " ";
+        }
+      });
+      $('#map_name').val(name.trim().replace("Creating a map with ", ""));
     },
 
     initMapValues: function(){
