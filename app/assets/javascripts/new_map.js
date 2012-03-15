@@ -5,7 +5,7 @@ function newMap(){
     },
     
     readyForSaving: function(){
-      if($('input#map_keywords').val().split(",").length == 0){
+      if($('input#map_keywords').val().trim() == ""){
         return false
       }
       if($('input#map_location_name').val().trim() == ""){
@@ -54,7 +54,12 @@ function newMap(){
       if(keyword == ""){
         return;
       }
-      var val = $('input#map_keywords').val().split(",");
+      var val;
+      if($('input#map_keywords').val().trim() == ""){
+        val = [];
+      } else {
+        val = $('input#map_keywords').val().split(",");
+      }
       val.push(keyword)
       $('input#map_keywords').val(val.join(","));
       this.updateKeywordList();
