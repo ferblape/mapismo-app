@@ -179,7 +179,13 @@
               // var position = new google.maps.LatLng(map_style.latitude,map_style.longitude);
               var position = new google.maps.LatLng($('#map_lat').val(),$('#map_lon').val());
               carto_embed_map.setCenter(position);
-              marker = new google.maps.Marker({ position:position,map:carto_embed_map,draggable:false})
+              marker = new google.maps.Marker({ position:position,map:carto_embed_map,draggable:true});
+              google.maps.event.addListener(marker,'dragend',function(){
+                var latlng = marker.getPosition();
+                $('input#map_lat').val(latlng.lat());
+                $('input#map_lon').val(latlng.lng());
+                polygonDrawHandler(polygon, latlng)
+              });
               polygon = polygonDrawHandler(polygon, position);
             } else {
               getCartoDBBBox();
