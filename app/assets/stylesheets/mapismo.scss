@@ -102,8 +102,7 @@ body, input {
 }
 #top_bar a:hover, #top_bar a:focus, #top_bar a.selected {
   border-color: #eee;
-  outline: none;
-/*  background: #303030;*/
+  outline: none
 }
 
 a.button, #top_bar a.button, .save_bar a {
@@ -117,6 +116,11 @@ a.button:hover, #top_bar a.button:hover, .save_bar a:hover {
 #top_bar a.button {
   position: absolute;
   right: 18px;
+}
+a.button.disabled {
+  background-color: #9faeb6;
+  text-shadow: none;
+  color: #e1e3e4;
 }
 
 /* Save bar */
