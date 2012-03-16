@@ -139,16 +139,6 @@ function newMap(){
 
     whereValue: function(value){
       $('input#map_location_name').val(value);
-      this.geocoder.geocode({'address': value}, function(results, status) {
-        if (status == google.maps.GeocoderStatus.OK) {
-          var latlng = results[0].geometry.location;
-          $('input#map_lat').val(latlng.lat());
-          $('input#map_lon').val(latlng.lng());
-        } else {
-          $('input#map_lat').val(0.0);
-          $('input#map_lon').val(0.0);
-        }
-      });
       this.updateMapBar();
     },
 
@@ -207,14 +197,13 @@ function newMap(){
     },
 
     initMapValues: function(){
-      this.geocoder = new google.maps.Geocoder();
       this.whatValues(['flickr','instagram'], ['football','15m']);
       this.whereValue('Madrid');
     },
-
+    map: null,
     geocoder: null,
 
-    initDOM: function(){
+    initDOM: function(carto_embed_map){
       var that = this;
       
       $('.popover').hide();
@@ -227,11 +216,10 @@ function newMap(){
         min: 500,
         max: 5000,
         step: 500,
-        value: $('#map_radius').val(),
-        change: function(e, ui){
-          $('#map_radius').val(ui.value);
-        }
+        value: $('#map_radius').val()
       });
+      
+      $('#radius').html($('#map_radius').val() + " meters");
       
       // Date pickers
       $('#from_day').datepicker({
@@ -288,7 +276,6 @@ function newMap(){
           }
           if($('input#map_location_name').is(":focus")){
             that.whereValue($('input#map_location_name').val());
-            $('.popover.where').fadeOut('slow');
           }
         }
       });
