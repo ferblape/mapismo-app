@@ -112,11 +112,17 @@ CartoDBInfowindow.prototype.setPosition = function() {
   }
 }
 
-CartoDBInfowindow.prototype.updateInfoWindow = function(row){
+String.prototype.capitaliseFirstLetter = function()
+{
+    return this.charAt(0).toUpperCase() + this.slice(1);
+}
+
+CartoDBInfowindow.prototype.updateInfoWindow = function(row, feature){
+  $('#current_feature').val(feature);
   $('#content .item_data img').attr('src', row.avatar_url);
   $('#content .item_data p strong').html(row.username);
   $('#content .item_data p span.date').html(row.date);
-  $('#content .item_data p a').html(row.source);
+  $('#content .item_data p a').html(row.source.capitaliseFirstLetter());
   $('#content .item_data p a').attr('href', row.permalink);
   var content = $('#content .content');
   content.removeClass('flickr').removeClass('instagram').removeClass('twitter');
@@ -126,7 +132,19 @@ CartoDBInfowindow.prototype.updateInfoWindow = function(row){
   }
 }
 
-CartoDBInfowindow.prototype.open = function(feature,latlng){
+CartoDBInfowindow.prototype.updatePagination = function(feature, featureList){
+  $('#content nav.pagination a.prev').removeClass('disabled');
+  $('#content nav.pagination a.next').removeClass('disabled');
+  
+  if(featureList.indexOf(feature) == 0){
+    $('#content nav.pagination a.prev').addClass('disabled');
+  }
+  if(featureList.indexOf(feature) == featureList.length-1){
+    $('#content nav.pagination a.next').addClass('disabled');
+  }
+}
+
+CartoDBInfowindow.prototype.open = function(feature,latlng,featureList){
   var that = this;
   that.feature_ = feature;
   that.latlng_ = latlng;
@@ -137,7 +155,8 @@ CartoDBInfowindow.prototype.open = function(feature,latlng){
     url: TILEHTTP + '://'+ this.params_.cartodb_user_name + '.' + SQL_SERVER + '/api/v1/sql/?q='+escape('select '+that.columns_+' from '+ this.params_.cartodb_table_name + ' where cartodb_id=' + feature)+'&callback=?',
     dataType: 'jsonp',
     success: function(result) {
-      that.updateInfoWindow(result.rows[0]);
+      that.updateInfoWindow(result.rows[0], feature);
+      that.updatePagination(feature, featureList);
       $('#content').show();
     },
     error: function(e) {}

@@ -14,7 +14,7 @@ module ApplicationHelper
   
   def title(page_title)
     content_for :title do
-      "Mapismo · " + page_title
+      page_title + " · Mapismo"
     end
   end
   

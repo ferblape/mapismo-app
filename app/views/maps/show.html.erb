@@ -25,7 +25,6 @@
         cartodb_style = cartodb_params[i].replace('style=','');
       }
     }
-    console.log(cartodb_sql);
     
     $(function() {
 
@@ -86,10 +85,23 @@
             cartodb_map         : carto_embed_map,
             cartodb_map_canvas  : 'map_cartodb_container'
           }
-
-      // Add wax interaction
-      addCartoDBInteraction(cartodb_params);
-
+      var infowindow, featureList = [];
+      
+      $.ajax({
+        url: TILEHTTP + '://'+cartodb_user_name+'.' + SQL_SERVER + global_api_url+ 'sql/?q='+
+              escape('select cartodb_id from '+ cartodb_table_name + ' order by date DESC'),
+        type: 'GET',
+        dataType: 'jsonp',
+        success:function(result){
+          result.rows.forEach(function(row){
+            featureList.push(row.cartodb_id);
+          });
+          // Add wax interaction
+          addCartoDBInteraction(cartodb_params, infowindow, featureList);
+          
+        }
+      });
+      
       // Zoom to your geometries
       function getCartoDBBBox() {
         $.ajax({
@@ -133,11 +145,38 @@
 
 
       // Wax interaction
-      function addCartoDBInteraction(params) {
+      function addCartoDBInteraction(params, infowindow, featureList) {
         var currentCartoDbId,
-            tilejson = generateTileJson(params);
-            infowindow = new CartoDBInfowindow(params);
+            tilejson = generateTileJson(params),
             cache_buster = 0;
+        infowindow = new CartoDBInfowindow(params);
+        
+        $('#content nav.pagination a.prev').on({
+          click: function(e){
+            if(!$(this).hasClass('disabled')){
+              var currentFeature = parseInt($('#current_feature').val());
+              var index = featureList.indexOf(currentFeature);
+              if(index > 0) {
+                infowindow.open(featureList[index-1],null,featureList);
+              }
+            }
+            e.preventDefault(); e.stopPropagation();
+          }
+        });
+        
+        $('#content nav.pagination a.next').on({
+          click: function(e){
+            if(!$(this).hasClass('disabled')){
+              currentFeature = $('#current_feature').val();
+              var currentFeature = parseInt($('#current_feature').val());
+              var index = featureList.indexOf(currentFeature);
+              if(index < featureList.length-1) {
+                infowindow.open(featureList[index+1],null,featureList);
+              }
+            }
+            e.preventDefault(); e.stopPropagation();
+          }
+        });
         
         var waxOptions = {
           callbacks: {
@@ -148,7 +187,7 @@
               params.cartodb_map.setOptions({draggableCursor: 'pointer'});
             },
             click: function(feature, div, opt3, evt){
-              infowindow.open(feature,evt.latLng);
+              infowindow.open(feature,evt.latLng,featureList);
             }
           },
           clickAction: 'full'
@@ -206,8 +245,8 @@
 <div class="popover" id="content" style="display:none">
   <div class="header">
     <nav class="pagination">
-      <a href="#" class="prev">Previous item</a>
-      <a href="#" class="next disabled">Next item</a>
+      <a href="#" class="prev" title="Previous">Previous item</a>
+      <a href="#" class="next" title="Next">Next item</a>
     </nav>
 
     <div class="item_data">
@@ -218,20 +257,11 @@
       </p>
     </div>
   </div>
- 
-  <!-- 
-  <div class="content instagram">
-    <img src="http://distilleryimage5.instagram.com/5657c4ae6d6611e1a87612313804ec91_7.jpg">    
-  </div>
-  <div class="content twitter">
-    Y no so perdais nuestra súper maquina para movernos por Melbourne... A tope d power!!! <a href="http://yfrog.com/obmqdzwfj" target="blank">http://yfrog.com/obmqdzwfj</a>     
-  </div>
-  <div class="content flickr">
-    <img src="http://farm7.staticflickr.com/6031/6323911636_7375c007d5.jpg" alt="photo title">    
-  </div> -->
   <div class="content"></div>
+  <input type="hidden" id="current_feature" />
 </div>
 
+<!--
 <div class="popover options">
   <ul>
     <li><a href="<%= cartodb_table_link %>">View on CartoDB</a></li>
@@ -239,6 +269,7 @@
     <li><span>Embed: <input type="text" value="http://kacmkanvjfblscndv.dvkdvkd"></span></li>
   </ul>
 </div>
+-->
 
 <!--<div id="timeline"></div>-->
 
