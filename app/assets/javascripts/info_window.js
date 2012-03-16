@@ -98,20 +98,6 @@ CartoDBInfowindow.prototype.draw = function() {
 };
 
 
-CartoDBInfowindow.prototype.setPosition = function() {
-  if (this.div_) { 
-    var div = this.div_;
-    var pixPosition = this.getProjection().fromLatLngToDivPixel(this.latlng_);
-    if (pixPosition) {
-      div.style.width = this.width_ + 'px';
-      div.style.left = (pixPosition.x - 49) + 'px';
-      var actual_height = - $(div).height();
-      div.style.top = (pixPosition.y + actual_height + 5) + 'px';
-    }
-    this.show();
-  }
-}
-
 String.prototype.capitaliseFirstLetter = function()
 {
     return this.charAt(0).toUpperCase() + this.slice(1);
@@ -161,25 +147,6 @@ CartoDBInfowindow.prototype.open = function(feature,latlng,featureList){
     },
     error: function(e) {}
   });
- 
-  function positionateInfowindow(variables) {
-    if (that.div_) {
-      var div = that.div_;
-              
-      // Remove the list items
-      $('div.cartodb_infowindow div.outer_top div.top').html('');
-
-      for (p in variables) {
-        if (p!='cartodb_id' && p!='cdb_centre') {
-          $('div.cartodb_infowindow div.outer_top div.top').append('<label>'+p+'</label><p class="'+((variables[p]!=null)?'':'empty')+'">'+(variables[p] || 'empty')+'</p>');
-        }
-      }
-      
-      $('div.cartodb_infowindow div.bottom label').html('id: <strong>'+feature+'</strong>');
-      // that.moveMaptoOpen();
-      // that.setPosition();     
-    }
-  }
 } 
 
 CartoDBInfowindow.prototype.hide = function() {
@@ -220,26 +187,4 @@ CartoDBInfowindow.prototype.isVisible = function(marker_id) {
   } else {
     return false;
   }
-}
-
-
-CartoDBInfowindow.prototype.moveMaptoOpen = function() {
-  var left = 0;
-  var top = 0;
-  var div = this.div_;
-  var pixPosition = this.getProjection().fromLatLngToContainerPixel(this.latlng_);
-
-  if ((pixPosition.x + this.offsetHorizontal_) < 0) {
-    left = (pixPosition.x + this.offsetHorizontal_ - 20);
-  }
-  
-  if ((pixPosition.x + 180) >= ($('#'+this.params_.cartodb_map_canvas).width())) {
-    left = (pixPosition.x + 180 - $('#'+this.params_.cartodb_map_canvas).width());
-  }
-  
-  if ((pixPosition.y - $(div).height()) < 0) {
-    top = (pixPosition.y - $(div).height() - 30);
-  }
-      
-  this.map_.panBy(left,top);
 }
