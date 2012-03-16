@@ -213,9 +213,9 @@ function newMap(){
       // radius slider
       $('#radius-picker').slider({
         range: 'min',
-        min: 500,
+        min: 50,
         max: 5000,
-        step: 500,
+        step: 50,
         value: $('#map_radius').val()
       });
       
