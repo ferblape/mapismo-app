@@ -153,7 +153,18 @@
           if(parseInt(ui.value) > 2000 && currentZoom > 13){
             carto_embed_map.setZoom(13);
           }
-          
+          if(parseInt(ui.value) > 1000 && currentZoom > 14){
+            carto_embed_map.setZoom(14);
+          }
+          if(parseInt(ui.value) < 2000 && currentZoom < 12){
+            carto_embed_map.setZoom(12);
+          }
+          if(parseInt(ui.value) < 1000 && currentZoom < 14){
+            carto_embed_map.setZoom(14);
+          }
+          if(parseInt(ui.value) < 700 && currentZoom < 16){
+            carto_embed_map.setZoom(16);
+          }
         }
       });
       
@@ -184,7 +195,8 @@
                 var latlng = marker.getPosition();
                 $('input#map_lat').val(latlng.lat());
                 $('input#map_lon').val(latlng.lng());
-                polygonDrawHandler(polygon, latlng)
+                carto_embed_map.setCenter(latlng);
+                polygonDrawHandler(polygon, latlng);
               });
               polygon = polygonDrawHandler(polygon, position);
             } else {

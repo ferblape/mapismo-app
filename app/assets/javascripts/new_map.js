@@ -216,7 +216,10 @@ function newMap(){
         min: 50,
         max: 5000,
         step: 50,
-        value: $('#map_radius').val()
+        value: $('#map_radius').val(),
+        slide: function(event, ui){
+          $('#radius').html(ui.value + " meters");
+        }
       });
       
       $('#radius').html($('#map_radius').val() + " meters");
