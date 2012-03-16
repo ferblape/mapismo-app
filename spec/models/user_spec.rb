@@ -98,9 +98,11 @@ describe 'User' do
   
   describe "#update_data_table_id!" do
     it "should get the id of data table and update users table" do
-      body = [
-        {"id"=>429, "name"=>"mapismo_data", "privacy"=>"PUBLIC", "tags"=>""}
-      ]
+      body = {
+        "tables" => [
+          {"id"=>429, "name"=>"mapismo_data", "privacy"=>"PUBLIC", "tags"=>""}
+        ]
+      }
       
       response = mock()
       response.stubs(:code).returns("200")
@@ -108,15 +110,17 @@ describe 'User' do
       
       connection = mock()
       connection.stubs(:response).returns(response)
+      connection.expects(:get).once.with("/api/v1/tables")
       
       cartodb_connection = mock()
       cartodb_connection.stubs(:connection).returns(connection)
-      cartodb_connection.expects(:get).once.with("/api/v1/tables")
       User.any_instance.stubs(:connection).returns(cartodb_connection)
       
       mapismo_conn_response = mock()
       mapismo_conn_response.stubs(:code).returns("200")
-      $mapismo_conn.stubs(:response).returns(mapismo_conn_response)
+      mapismo_conn = mock()
+      mapismo_conn.stubs(:response).returns(mapismo_conn_response)
+      $mapismo_conn.stubs(:connection).returns(mapismo_conn)
       $mapismo_conn.expects(:run_query).with('UPDATE application_users_test SET data_table_id = 429 WHERE cartodb_user_id = 1').once
       
       subject.update_data_table_id!
@@ -149,7 +153,7 @@ describe 'User' do
         cartodb_username: attributes[:username],
         oauth_token: attributes[:token],
         oauth_secret: attributes[:secret],
-        data_table_id: nil
+        data_table_id: 0
       }
       $mapismo_conn.expects(:insert_row).with(Mapismo.users_table, attrs_converted).returns(true)
       User.any_instance.stubs(:update_data_table_id!).returns(true)

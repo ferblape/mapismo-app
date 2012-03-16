@@ -15,13 +15,17 @@ module MapismoApp
       connection.response.code.to_i == 200
     end
 
-    def create_table(name, schema, status = :private)
-      connection.post("/api/v1/tables", {
+    def create_table(name, schema, options = {})
+      options[:privacy] ||= :private
+      
+      table_options = {
         name: name,
         schema: schema
-      })
+      }
+      table_options.merge!({the_geom_type: options[:geometry]}) if options[:geometry]
+      connection.post("/api/v1/tables", table_options)
       if connection.response.code.to_i == 200
-        if status == :private
+        if options[:privacy] == :private
           return true
         else
           connection.put("/api/v1/tables/#{name}?privacy=1")

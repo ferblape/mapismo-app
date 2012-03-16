@@ -69,9 +69,20 @@ describe "MapismoApp::CartoDBConnection" do
           connection.expects(:post).with("/api/v1/tables", {name: "new_table_name", schema: "f1 varchar, f2 integer"})
           subject.stubs(:connection).returns(connection)
 
-          subject.create_table("new_table_name", "f1 varchar, f2 integer", :public).should be_true
+          subject.create_table("new_table_name", "f1 varchar, f2 integer", {privacy: :public}).should be_true
         end
       end
+
+      context "when geometry type is set" do
+        it "should send the type of geometry" do
+          connection.stubs(:response).returns(mocked_response(200)).then.returns(mocked_response(200))
+          connection.expects(:post).with("/api/v1/tables", {name: "new_table_name", schema: "f1 varchar, f2 integer", the_geom_type: :point})
+          subject.stubs(:connection).returns(connection)
+
+          subject.create_table("new_table_name", "f1 varchar, f2 integer", {geometry: :point}).should be_true
+        end
+      end
+
     end
     
     describe "#reset_table" do

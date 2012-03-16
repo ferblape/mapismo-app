@@ -32,7 +32,7 @@ class User
         cartodb_username: attributes[:username],
         oauth_token: attributes[:token],
         oauth_secret: attributes[:secret],
-        data_table_id: nil
+        data_table_id: 0
       })
       
       user = new(attributes)
@@ -53,7 +53,7 @@ class User
     data_table_schema = "map_id integer, avatar_url varchar, username varchar, date timestamp," +
                         "permalink varchar, data varchar, the_geom geometry, source varchar," +
                         "source_id varchar"
-    connection.create_table(Mapismo.data_table, data_table_schema, :public)
+    connection.create_table(Mapismo.data_table, data_table_schema, {privacy: :public, geometry: :point})
   end
   
   def maps
@@ -73,15 +73,15 @@ class User
   end
   
   def update_data_table_id!
-    connection.get("/api/v1/tables")
+    connection.connection.get("/api/v1/tables")
     if connection.connection.response.code.to_i == 200
-      tables = JSON.parse(connection.connection.response.body)
+      tables = JSON.parse(connection.connection.response.body)["tables"]
       id = tables.select{ |t| t["name"] == Mapismo.data_table }.first["id"]
       $mapismo_conn.run_query("UPDATE #{Mapismo.users_table} SET data_table_id = #{id} WHERE cartodb_user_id = #{self.id}")
-      if $mapismo_conn.response.code.to_i == 200
+      if $mapismo_conn.connection.response.code.to_i == 200
         return true
       else
-        response = JSON.parse($mapismo_conn.response.body)
+        response = JSON.parse($mapismo_conn.connection.response.body)
         raise response["error"][0]
       end
     else
