@@ -15,6 +15,7 @@
           global_api_url = '/api/v1/',
           map_id = '<%= @map.id %>';
     
+    // TODO: filter by map_id
     var cartodb_sql = '<%= CGI.escape("SELECT * FROM #{Mapismo.data_table}") %>',
         cartodb_style,
         cartodb_params = [];
@@ -87,6 +88,8 @@
           }
       var infowindow, featureList = [];
       
+      
+      // Load the list of features
       $.ajax({
         url: TILEHTTP + '://'+cartodb_user_name+'.' + SQL_SERVER + global_api_url+ 'sql/?q='+
               escape('select cartodb_id from '+ cartodb_table_name + ' order by date DESC'),

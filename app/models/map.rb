@@ -33,8 +33,8 @@ class Map
     if value.is_a?(String)
       value = value.split(',').map{ |k| k.strip }.compact.flatten
     end
-    if value.size > 10
-      raise "Only 10 keywords are allowed"
+    if value.size > 3
+      raise "Only 3 keywords are allowed"
     end
     @keywords = value
   end

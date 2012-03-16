@@ -98,11 +98,6 @@ CartoDBInfowindow.prototype.draw = function() {
 };
 
 
-String.prototype.capitaliseFirstLetter = function()
-{
-    return this.charAt(0).toUpperCase() + this.slice(1);
-}
-
 CartoDBInfowindow.prototype.updateInfoWindow = function(row, feature){
   $('#current_feature').val(feature);
   $('#content .item_data img').attr('src', row.avatar_url);

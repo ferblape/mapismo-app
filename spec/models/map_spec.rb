@@ -170,8 +170,8 @@ describe Map do
     let(:subject) { Map.new(user_id: 1) }
     
     it "should accept a string separated by commas" do
-      subject.keywords = "kw1,kw2,  kw3   , kw4"
-      subject.keywords.should == %W{ kw1 kw2 kw3 kw4 }
+      subject.keywords = "kw1,kw2,  kw3"
+      subject.keywords.should == %W{ kw1 kw2 kw3 }
     end
 
     it "should accept an array" do
@@ -179,10 +179,10 @@ describe Map do
       subject.keywords.should == %W{ k1 k2 }
     end
 
-    it "should have a limit of 10 keywords" do
+    it "should have a limit of 3 keywords" do
       lambda {
-        subject.keywords = "k1,k2,k3,k4,k5,k6,k7,k8,k9,k10,k11"
-      }.should raise_error("Only 10 keywords are allowed")
+        subject.keywords = "k1,k2,k3,k4"
+      }.should raise_error("Only 3 keywords are allowed")
     end
     
     it "should set an empty array by default" do

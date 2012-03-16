@@ -1,17 +1,3 @@
-Date.prototype.monthNames = [
-    "January", "February", "March",
-    "April", "May", "June",
-    "July", "August", "September",
-    "October", "November", "December"
-];
-
-Date.prototype.getMonthName = function() {
-    return this.monthNames[this.getMonth()];
-};
-Date.prototype.getShortMonthName = function () {
-    return this.getMonthName().substr(0, 3);
-};
-
 function newMap(){
   return({
     
@@ -93,10 +79,21 @@ function newMap(){
       });
       $('input#map_keywords').val(val);
       this.updateMapBar();
+      this.enableKeywordInput();
+    },
+    
+    disableKeywordInput: function(){
+      $('#new_keyword').attr('disabled', 'disabled');
+      $('#new_keyword').attr('placeholder', 'Only 3 keywords are allowed');
+    },
+
+    enableKeywordInput: function(){
+      $('#new_keyword').attr('disabled', null);
+      $('#new_keyword').attr('placeholder', null);
     },
     
     addKeyword: function(keyword){
-      keyword = keyword.trim();
+      keyword = keyword.split(",")[0].trim();
       if(keyword == ""){
         return;
       }
@@ -106,21 +103,33 @@ function newMap(){
       } else {
         val = $('input#map_keywords').val().split(",");
       }
-      val.push(keyword)
-      $('input#map_keywords').val(val.join(","));
-      this.updateKeywordList();
-      this.updateMapBar();
+      if(val.length < 3) {
+        val.push(keyword)
+        $('input#map_keywords').val(val.join(","));
+        this.updateKeywordList();
+        this.updateMapBar();
+        if(val.length == 3){
+          this.disableKeywordInput();
+        }
+      }
     },
     
     whatValues: function(sources, keywords){
+      $('.popover.what .social_networks label').removeClass('selected');
       sources.forEach(function(source){
         var str;
         switch(source) {
           case "flickr":
             $('.popover.what input[value=flickr]').attr('checked','checked');
+            $('.popover.what label.flickr').addClass('selected');
             break;
           case "instagram":
             $('.popover.what input[value=instagram]').attr('checked','checked');
+            $('.popover.what label.instagram').addClass('selected');
+            break;
+          case "twitter":
+            $('.popover.what input[value=twitter]').attr('checked','checked');
+            $('.popover.what label.twitter').addClass('selected');
             break;
         };
       });
@@ -152,17 +161,20 @@ function newMap(){
     
     updateMapBar: function(){
       var parsedValue = "";
-      $('.popover.what input:checked').each(function(){
-        switch($(this).val()){
-          case "flickr":
-            str = "Flickr photos";
-            break;
-          case "instagram":
-            str = "Instagram photos";
-            break;
+      if($('.popover.what input[value=twitter]').is(':checked')){
+        parsedValue += "Tweets";
+      }
+      if($('.popover.what input[value=flickr]').is(':checked')){
+        (parsedValue == "") ? parsedValue += "Flickr" : parsedValue += ", Flickr"
+      }
+      if($('.popover.what input[value=instagram]').is(':checked')){
+        (parsedValue == "") ? parsedValue += "Instagram photos" : parsedValue += " and Instagram photos"
+      } else {
+        if(parsedValue != ""){
+          parsedValue += " photos";
         }
-        (parsedValue == "") ? parsedValue += str : parsedValue += " and " + str;
-      });
+      }
+      
       parsedValue += " about ";
       // TODO: the last ',' should be 'and'
       parsedValue += $('input#map_keywords').val().split(",").join(", ");
@@ -206,6 +218,7 @@ function newMap(){
       var that = this;
       
       $('.popover').hide();
+      $('.popover.what').show();
       $('.save_bar').hide();
 
       // radius slider
@@ -282,8 +295,12 @@ function newMap(){
 
       this.parentElement().find('a[data-type=what]').on({
         click: function(e){
-          $('.popover').hide();
-          $('.popover.what').show();
+          $('.popover.where, .popover.when').hide();
+          $('.popover.what').toggle();
+          that.parentElement().find('a').removeClass('selected');
+          if($('.popover.what').is(':visible')){
+            $(this).addClass('selected');
+          }
           $('#new_keyword').focus();
           e.preventDefault(); e.stopPropagation();
         }
@@ -291,8 +308,12 @@ function newMap(){
 
       this.parentElement().find('a[data-type=where]').on({
         click: function(e){
-          $('.popover').hide();
-          $('.popover.where').show();
+          $('.popover.what, .popover.when').hide();
+          $('.popover.where').toggle();
+          that.parentElement().find('a').removeClass('selected');
+          if($('.popover.where').is(':visible')){
+            $(this).addClass('selected');
+          }
           $('#map_location_name').focus();
           e.preventDefault(); e.stopPropagation();
         }
@@ -300,8 +321,12 @@ function newMap(){
       
       this.parentElement().find('a[data-type=when]').on({
         click: function(e){
-          $('.popover').hide();
-          $('.popover.when').show();
+          $('.popover.where, .popover.what').hide();
+          $('.popover.when').toggle();
+          that.parentElement().find('a').removeClass('selected');
+          if($('.popover.when').is(':visible')){
+            $(this).addClass('selected');
+          }
           e.preventDefault(); e.stopPropagation();
         }
       });
@@ -309,6 +334,11 @@ function newMap(){
       $('.popover.what input').on({
         change: function(e){
           that.updateMapBar();
+          if($(this).is(':checked')){
+            $(this).parents('label').addClass('selected');
+          } else {
+            $(this).parents('label').removeClass('selected');
+          }
           e.preventDefault(); e.stopPropagation();
         }
       });
