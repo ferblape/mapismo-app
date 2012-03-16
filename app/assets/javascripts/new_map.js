@@ -343,7 +343,7 @@ function newMap(){
             $(this).parents('form').submit();
           }
         }
-      })
+      });
     }
   });
 }

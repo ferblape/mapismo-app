@@ -42,6 +42,11 @@
 
       // Init the map
       var carto_embed_map = new google.maps.Map(document.getElementById("map_cartodb_container"),cartodbMapOptions);
+      
+      google.maps.event.addListener(carto_embed_map, 'click', function() {
+        $('.popover').hide();
+      });
+        
       var marker, polygon;
       
       // Code from 
