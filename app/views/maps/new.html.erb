@@ -1,38 +1,25 @@
 <% title "New map" %>
 
 <%= content_for :head do %>
-  <%= javascript_include_tag "map" %>
   <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
-
+  <%= javascript_include_tag "map" %>
   <%= javascript_include_tag "//cartodb.s3.amazonaws.com/embed/wax.g.js" %>
-  
+
   <script type="text/javascript">
     var cartodb_table_name  = "<%= Mapismo.data_table %>",
         cartodb_table_id    = "<%= current_user.data_table_id %>",
         cartodb_user_name   = "<%= current_user.username %>",
-          TILEHTTP = "https",
-          TILESERVER = "cartodb.com",
-          SQL_SERVER = 'cartodb.com',
-          global_api_url = '/api/v1/';
-    
-    var cartodb_sql,
+        TILEHTTP = "https",
+        TILESERVER = "cartodb.com",
+        SQL_SERVER = 'cartodb.com',
+        global_api_url = '/api/v1/',
+        cartodb_sql,
         cartodb_style,
-        cartodb_params = [];
-    
-    // Getting vars
-    // for (var i = 0, length = cartodb_params.length; i<length; i++) {
-    //   if (cartodb_params[i].search('style=%23') != -1) {
-    //     cartodb_style = cartodb_params[i].replace('style=','');
-    //   }
-    //   if (cartodb_params[i].search('sql=') != -1) {
-    //     cartodb_sql = cartodb_params[i].replace('sql=','');
-    //   }
-    // }
-  </script>
-  
-  <script type="text/javascript">
-    $(function() {
+        cartodb_params = [],
+        marker, polygon, carto_embed_map,
+        geocoder;
 
+    $(function() {
       var cartodbMapOptions = {
         zoom: 2,
         center: new google.maps.LatLng(0,0),
@@ -41,83 +28,20 @@
       };
 
       // Init the map
-      var carto_embed_map = new google.maps.Map(document.getElementById("map_cartodb_container"),cartodbMapOptions);
-      
+      carto_embed_map = new google.maps.Map(document.getElementById("map_cartodb_container"),cartodbMapOptions);
+
+      // Close any popover when clicking the map
       google.maps.event.addListener(carto_embed_map, 'click', function() {
         $('.popover').hide();
       });
-        
-      var marker, polygon;
-      
-      // Code from 
-      // http://obeattie.github.com/gmaps-radius/
-      var earthRadiuses = {
-          // The radius of the earth in various units
-          'mi': 3963.1676,
-          'km': 6378.1,
-          'ft': 20925524.9,
-          'mt': 6378100,
-          'in': 251106299,
-          'yd': 6975174.98,
-          'fa': 3487587.49,
-          'na': 3443.89849,
-          'ch': 317053.408,
-          'rd': 1268213.63,
-          'fr': 31705.3408
-      };
-      
-      function getPoints(lat, lng, radius, earth){
-          // Returns an array of GLatLng instances representing the points of the radius circle
-          var lat = (lat * Math.PI) / 180; //rad
-          var lon = (lng * Math.PI) / 180; //rad
-          var d = parseFloat(radius) / earth; // d = angular distance covered on earth's surface
-          var points = [];
-          for (x = 0; x <= 360; x++) 
-          { 
-              brng = x * Math.PI / 180; //rad
-              var destLat = Math.asin(Math.sin(lat)*Math.cos(d) + Math.cos(lat)*Math.sin(d)*Math.cos(brng));
-              var destLng = ((lon + Math.atan2(Math.sin(brng)*Math.sin(d)*Math.cos(lat), Math.cos(d)-Math.sin(lat)*Math.sin(destLat))) * 180) / Math.PI;
-              destLat = (destLat * 180) / Math.PI;
-              points.push(new google.maps.LatLng(destLat, destLng));
-          }
-          return points;
-      }
-      
-      function polygonDestructionHandler(polygon) {
-        polygon.setMap(null);
-        return polygon;
-      }
-      
-      function polygonDrawHandler(polygon, position) {
-          // Get the desired radius + units
-          var earth = earthRadiuses['mt'];
-          var radius = parseFloat($('#map_radius').val());
-          // Draw the polygon
-          var points = getPoints(position.lat(), position.lng(), radius, earth);
-          if(polygon == null){
-            polygon = new google.maps.Polygon({
-                paths: points,
-                strokeColor: '#004de8',
-                strokeWeight: 1,
-                strokeOpacity: 0.62,
-                fillColor: '#004de8',
-                fillOpacity: 0.07,
-                geodesic: true,
-                map: carto_embed_map
-            });
-          } else {
-            polygon.setPaths(points);
-            polygon.setMap(carto_embed_map);
-            polygon.setVisible(true);
-            polygon.setVisible(true);
-          }
-          return polygon;
-      }
-      
+
       MAPISMO.newMap.initMapValues();
       MAPISMO.newMap.initDOM();
       geocoder = new google.maps.Geocoder();
-      
+
+      // On changing the location of the map
+      // center the map, move the marker, and update
+      // latitude and longitude hidden fields
       $('input#map_location_name').on({
         change: function(e){
           geocoder.geocode({'address': $(this).val()}, function(results, status) {
@@ -136,7 +60,7 @@
           });
         }
       });
-      
+
       // radius slider
       $('#radius-picker').slider({
         change: function(e, ui){
@@ -167,7 +91,7 @@
           }
         }
       });
-      
+
       // Setup your map styles
       $.ajax({
         url:TILEHTTP + '://' + cartodb_user_name + '.' + TILESERVER + '/tiles/' + cartodb_table_name + '/map_metadata',
@@ -216,132 +140,21 @@
         },
         error: function(e){}
       });
-      
-      
+
+
       // Necessary params for wax and infowindow
-      var cartodb_params = {
-            cartodb_sql         : cartodb_sql,
-            cartodb_style       : cartodb_style,
-            cartodb_user_name   : cartodb_user_name,
-            cartodb_table_name  : cartodb_table_name,
-            cartodb_table_id    : cartodb_table_id,
-            cartodb_map         : carto_embed_map,
-            cartodb_map_canvas  : 'map_cartodb_container'
-          }
+      cartodb_params = {
+        cartodb_sql         : cartodb_sql,
+        cartodb_style       : cartodb_style,
+        cartodb_user_name   : cartodb_user_name,
+        cartodb_table_name  : cartodb_table_name,
+        cartodb_table_id    : cartodb_table_id,
+        cartodb_map         : carto_embed_map,
+        cartodb_map_canvas  : 'map_cartodb_container'
+      };
 
       // Add wax interaction
       addCartoDBInteraction(cartodb_params);
-
-      // Zoom to your geometries
-      function getCartoDBBBox() {
-        $.ajax({
-          method: "GET",
-          url: TILEHTTP + '://'+cartodb_user_name+'.' + SQL_SERVER + global_api_url+ 'sql/?q='+escape('select ST_Extent(the_geom) from '+ cartodb_table_name),
-          dataType: 'jsonp',
-          success: function(data) {
-            if (data.rows[0].st_extent!=null) {
-              var coordinates = data.rows[0].st_extent.replace('BOX(','').replace(')','').split(',');
-
-              var coor1 = coordinates[0].split(' ');
-              var coor2 = coordinates[1].split(' ');
-              var bounds = new google.maps.LatLngBounds();
-
-              // Check bounds
-              if (coor1[0] >  180
-               || coor1[0] < -180
-               || coor1[1] >  90
-               || coor1[1] < -90
-               || coor2[0] >  180
-               || coor2[0] < -180
-               || coor2[1] >  90
-               || coor2[1] < -90) {
-                coor1[0] = '-30';
-                coor1[1] = '-50';
-                coor2[0] = '110';
-                coor2[1] =  '80';
-              }
-
-
-              bounds.extend(new google.maps.LatLng(coor1[1],coor1[0]));
-              bounds.extend(new google.maps.LatLng(coor2[1],coor2[0]));
-
-              carto_embed_map.fitBounds(bounds);
-            }
-
-          },
-          error: function(e) {}
-        });
-      }
-
-
-      // Wax interaction
-      function addCartoDBInteraction(params) {
-        var currentCartoDbId,
-            tilejson = generateTileJson(params);
-            infowindow = new CartoDBInfowindow(params);
-            cache_buster = 0;
-        
-        var waxOptions = {
-          callbacks: {
-            out: function(){
-              params.cartodb_map.setOptions({draggableCursor: 'default'});
-            },
-            over: function(feature, div, opt3, evt){
-              params.cartodb_map.setOptions({draggableCursor: 'pointer'});
-            },
-            click: function(feature, div, opt3, evt){
-              infowindow.open(feature,evt.latLng);
-            }
-          },
-          clickAction: 'full'
-        };
-        
-        var wax_tile = new wax.g.connector(tilejson);
-        params.cartodb_map.overlayMapTypes.insertAt(0,wax_tile);
-        var interaction = wax.g.interaction(params.cartodb_map, tilejson, waxOptions);
-
-
-        // Generate tilejson
-        function generateTileJson(params) {
-          var core_url = TILEHTTP + '://' + params.cartodb_user_name + '.' + TILESERVER;  
-          var base_url = core_url + '/tiles/' + params.cartodb_table_name + '/{z}/{x}/{y}';
-          var tile_url = base_url + '.png?cache_buster=0';
-          var grid_url = base_url + '.grid.json';
-      
-          // SQL?
-          if (params.cartodb_sql) {
-            var query = 'sql=' + params.cartodb_sql;
-            tile_url = wax.util.addUrlData(tile_url, query);
-            grid_url = wax.util.addUrlData(grid_url, query);
-          }
-
-          // Style
-          if (params.cartodb_style) {
-            var style = 'style=' + params.cartodb_style;
-            tile_url = wax.util.addUrlData(tile_url,style);
-            grid_url = wax.util.addUrlData(grid_url,style);
-          }
-
-      
-          // Build up the tileJSON
-          return {
-            blankImage: TILEHTTP + '://cartodb.s3.amazonaws.com/embed/blank_tile.png', 
-            tilejson: '1.0.0',
-            scheme: 'xyz',
-            tiles: [tile_url],
-            grids: [grid_url],
-            tiles_base: tile_url,
-            grids_base: grid_url,
-            formatter: function(options, data) {
-                currentCartoDbId = data.cartodb_id;
-                return data.cartodb_id;
-            },
-            cache_buster: function(){
-                return params.cache_buster;
-            }
-          };
-        };
-      };
 
       // Zoom bindings
       $('a.cartodb_map_embed_zoom_in').click(function(ev){
@@ -354,15 +167,15 @@
       });
     });
   </script>
-  
+
 <% end %>
 
 <header id="top_bar">
-  Creating a map 
+  Creating a map
   with <a href="#" data-type="what" class="selected"></a>
-  in <a href="#" data-type="where"></a> 
+  in <a href="#" data-type="where"></a>
   on <a href="#" data-type="when"></a>
-  
+
   <a href="#" class="button">Go</a>
 </header>
 
@@ -376,7 +189,7 @@
 
 <div class="popover what">
   <h2>What</h2>
-  
+
   <div class="social_networks">
     <label for="twitter" class="twitter">
       <span>Twitter</span>
@@ -394,7 +207,7 @@
       <input name="map[sources][]" type="checkbox" value="instagram" id="instagram"/>
     </label>
   </div>
-  
+
   <div class="keywords">
     <label for="keywords">With these words</label>
     <input type="text" id="new_keyword" />
@@ -405,14 +218,14 @@
 
 <div class="popover where">
   <h2>Where</h2>
-  
+
   <div class="location">
     <input id="map_location_name" name="map[location_name]" size="30" type="text" value="" />
   </div>
   <p id="radius"></p>
-  
+
   <div id="radius-picker"></div>
-  
+
   <input id="map_lat" name="map[lat]" type="hidden" value="40.416691" />
   <input id="map_lon" name="map[lon]" type="hidden" value="-3.700345" />
   <input id="map_radius" name="map[radius]" type="hidden" value="1000" />
@@ -420,7 +233,7 @@
 
 <div class="popover when">
   <h2>When</h2>
-  
+
   <div class="from">
     <label for="from_day">From</label>
     <input type="text" id="from_day" class="day" />

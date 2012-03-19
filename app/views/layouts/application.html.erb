@@ -11,14 +11,9 @@
     <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
   <![endif]-->
   <%= yield :head %>
-  <script type="text/javascript">
-  $(document).ready(function() {
-    <%= yield :js %>
-  });
-  </script>
 </head>
 <body>
-  
+
 <%= flush_the_flash %>
 
 <%= yield %>
