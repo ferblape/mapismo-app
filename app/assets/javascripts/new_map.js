@@ -1,6 +1,6 @@
 function newMap(){
   return({
-    
+
     _formatDateLong: function(date){
       if(date != null) {
         return date.getFullYear() + '-' + parseInt(date.getMonth()+1) + '-' + date.getDate();
@@ -8,7 +8,7 @@ function newMap(){
         return "";
       }
     },
-    
+
     _formatTimeLong: function(time){
       if(time != null) {
         return '+' + time.getHours() + ':' + time.getMinutes() + ':' + time.getUTCSeconds();
@@ -29,11 +29,11 @@ function newMap(){
         return "";
       }
     },
-    
+
     parentElement: function(){
       return $('header#top_bar');
     },
-    
+
     readyForSaving: function(){
       if($('input#map_keywords').val().trim() == ""){
         return false
@@ -49,21 +49,21 @@ function newMap(){
       }
       return true;
     },
-    
+
     updatePopoverPositions: function(){
       var left = this.parentElement().find('a:eq(0)').position().left;
       var width = this.parentElement().find('a:eq(0)').width() / 2;
       $('.popover.what').css('left', left + width - $('.popover.what').width()/2);
-      
+
       left = this.parentElement().find('a:eq(1)').position().left;
       width = this.parentElement().find('a:eq(1)').width() / 2;
       $('.popover.where').css('left', left + width - $('.popover.where').width()/2);
-      
+
       left = this.parentElement().find('a:eq(2)').position().left;
       width = this.parentElement().find('a:eq(2)').width() / 2;
       $('.popover.when').css('left', left + width - $('.popover.when').width()/2);
     },
-    
+
     updateKeywordList: function(){
       $('ul#keywords_list').html('');
       $('input#map_keywords').val().split(",").forEach(function(keyword){
@@ -72,7 +72,7 @@ function newMap(){
            appendTo($('ul#keywords_list'));
       });
     },
-    
+
     removeKeyword: function(keyword){
       var val = $('input#map_keywords').val().split(",").filter(function(element, index, array){
         return (element != keyword.trim());
@@ -81,7 +81,7 @@ function newMap(){
       this.updateMapBar();
       this.enableKeywordInput();
     },
-    
+
     disableKeywordInput: function(){
       $('#new_keyword').attr('disabled', 'disabled');
       $('#new_keyword').attr('placeholder', 'Only 3 keywords are allowed');
@@ -91,7 +91,7 @@ function newMap(){
       $('#new_keyword').attr('disabled', null);
       $('#new_keyword').attr('placeholder', null);
     },
-    
+
     addKeyword: function(keyword){
       keyword = keyword.split(",")[0].trim();
       if(keyword == ""){
@@ -113,7 +113,7 @@ function newMap(){
         }
       }
     },
-    
+
     whatValues: function(sources, keywords){
       $('.popover.what .social_networks label').removeClass('selected');
       sources.forEach(function(source){
@@ -148,7 +148,7 @@ function newMap(){
       $('#map_end_date').val(this._formatDateLong($('#to_day').datepicker('getDate'))+
                               this._formatTimeLong($.timePicker("#to_time").getTime()));
     },
-    
+
     updateMapBar: function(){
       var parsedValue = "";
       if($('.popover.what input[value=twitter]').is(':checked')){
@@ -164,14 +164,14 @@ function newMap(){
           parsedValue += " photos";
         }
       }
-      
+
       parsedValue += " about ";
       // TODO: the last ',' should be 'and'
       parsedValue += $('input#map_keywords').val().split(",").join(", ");
-      
+
       this.parentElement().find('a:eq(0)').html(parsedValue);
       this.parentElement().find('a:eq(1)').html($('input#map_location_name').val());
-      
+
       if(this.readyForSaving()){
         $('.save_bar').show();
         $('#top_bar a.button').attr('disabled', null);
@@ -179,13 +179,13 @@ function newMap(){
         $('.save_bar').hide();
         $('#top_bar a.button').attr('disabled', 'disabled');
       }
-      
+
       var fromDate = this._formatDateShort($('#from_day').datepicker('getDate'));
       var toDate = this._formatDateShort($('#to_day').datepicker('getDate'));
       this.parentElement().find('a:eq(2)').html(fromDate + ' - ' + toDate);
-      
+
       this.updatePopoverPositions();
-      
+
       var name = "";
       $('#top_bar').text().split('\n').forEach(function(s){
         s = s.trim();
@@ -205,7 +205,7 @@ function newMap(){
 
     initDOM: function(carto_embed_map){
       var that = this;
-      
+
       $('.popover').hide();
       $('.popover.what').show();
       $('.save_bar').hide();
@@ -221,12 +221,13 @@ function newMap(){
           $('#radius').html(ui.value + " meters");
         }
       });
-      
+
       $('#radius').html($('#map_radius').val() + " meters");
-      
+
       // Date pickers
       $('#from_day').datepicker({
         dateFormat: 'yy-mm-dd',
+        maxDate: '+0',
         onSelect: function(dateText, inst) {
           var toDate = new Date($('#to_day').datepicker('getDate'));
           var fromDate = new Date(dateText);
@@ -239,30 +240,31 @@ function newMap(){
       });
       $('#to_day').datepicker({
         dateFormat: 'yy-mm-dd',
+        maxDate: '+0',
         onSelect: function(dateText, inst) {
           that.updateMapBar();
           that.setWhenValues();
         }
       });
-      
+
       var toDate = new Date();
       var fromDate = new Date();
       fromDate.setDate(fromDate.getDate() - 1);
       $('#from_day').datepicker('setDate', this._formatDateLong(fromDate));
       $('#to_day').datepicker('setDate', this._formatDateLong(toDate));
-      
+
       // Time pickers
       $("#from_time, #to_time").timePicker();
       $.timePicker("#from_time").setTime('00:00');
       $.timePicker("#to_time").setTime('00:00');
-      
+
       $("#from_time, #to_time").on({
         change: function(){
           that.setWhenValues();
         }
       });
       this.setWhenValues();
-      
+
       this.updateMapBar();
 
       // handle keyboard strokes
@@ -308,7 +310,7 @@ function newMap(){
           e.preventDefault(); e.stopPropagation();
         }
       });
-      
+
       this.parentElement().find('a[data-type=when]').on({
         click: function(e){
           $('.popover.where, .popover.what').hide();
@@ -339,7 +341,7 @@ function newMap(){
         parent.remove();
         e.preventDefault(); e.stopPropagation();
       });
-      
+
       $('a.button').on({
         click: function(e){
           if($(this).parents('form').length > 0){
