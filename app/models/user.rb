@@ -53,7 +53,7 @@ class User
     data_table_schema = "map_id integer, avatar_url varchar, username varchar, date timestamp," +
                         "permalink varchar, data varchar, the_geom geometry, source varchar," +
                         "source_id varchar"
-    connection.create_table(Mapismo.data_table, data_table_schema, {privacy: :public, geometry: :point})
+    connection.create_table(Mapismo.data_table, data_table_schema, {privacy: :public, geometry: 'Point'})
   end
   
   def maps
