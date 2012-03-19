@@ -17,6 +17,7 @@ class SessionsController < ApplicationController
       })
     end
     session[:data_table_id] = user.data_table_id
+    @current_user = setup_current_user
 
     if current_user.maps.empty?
       redirect_to new_map_path and return
@@ -27,7 +28,7 @@ class SessionsController < ApplicationController
 
   def failure
   end
-  
+
   def destroy
     reset_session
     redirect_to root_path and return
