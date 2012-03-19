@@ -188,17 +188,6 @@
             if (map_style.zoom && map_style.longitude && map_style.latitude) {
               carto_embed_map.setZoom(map_style.zoom);
               // var position = new google.maps.LatLng(map_style.latitude,map_style.longitude);
-              var position = new google.maps.LatLng($('#map_lat').val(),$('#map_lon').val());
-              carto_embed_map.setCenter(position);
-              marker = new google.maps.Marker({ position:position,map:carto_embed_map,draggable:true});
-              google.maps.event.addListener(marker,'dragend',function(){
-                var latlng = marker.getPosition();
-                $('input#map_lat').val(latlng.lat());
-                $('input#map_lon').val(latlng.lng());
-                carto_embed_map.setCenter(latlng);
-                polygonDrawHandler(polygon, latlng);
-              });
-              polygon = polygonDrawHandler(polygon, position);
             } else {
               getCartoDBBBox();
             }
@@ -208,6 +197,19 @@
             map_style = {};
             map_style.google_maps_customization_style = [ { stylers: [ { saturation: -65 }, { gamma: 1.52 } ] }, { featureType: "administrative", stylers: [ { saturation: -95 },{ gamma: 2.26 } ] }, { featureType: "water", elementType: "labels", stylers: [ { visibility: "off" } ] }, { featureType: "administrative.locality", stylers: [ { visibility: 'off' } ] }, { featureType: "road", stylers: [ { visibility: "simplified" }, { saturation: -99 }, { gamma: 2.22 } ] }, { featureType: "poi", elementType: "labels", stylers: [ { visibility: "off" } ] }, { featureType: "road.arterial", stylers: [ { visibility: 'off' } ] }, { featureType: "road.local", elementType: "labels", stylers: [ { visibility: 'off' } ] }, { featureType: "transit", stylers: [ { visibility: 'off' } ] }, { featureType: "road", elementType: "labels", stylers: [ { visibility: 'off' } ] },{ featureType: "poi", stylers: [ { saturation: -55 } ] } ];
           }
+
+          carto_embed_map.setZoom(15);
+          var position = new google.maps.LatLng($('#map_lat').val(),$('#map_lon').val());
+          carto_embed_map.setCenter(position);
+          marker = new google.maps.Marker({ position:position,map:carto_embed_map,draggable:true});
+          google.maps.event.addListener(marker,'dragend',function(){
+            var latlng = marker.getPosition();
+            $('input#map_lat').val(latlng.lat());
+            $('input#map_lon').val(latlng.lng());
+            carto_embed_map.setCenter(latlng);
+            polygonDrawHandler(polygon, latlng);
+          });
+          polygon = polygonDrawHandler(polygon, position);
 
           // Custom tiles
           carto_embed_map.setOptions({styles: map_style.google_maps_customization_style});
