@@ -2,7 +2,8 @@
 
 <%= content_for :head do %>
   <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
-  <%= javascript_include_tag "map" %>
+  <link rel="shortcut icon" href="http://cartodb.com/favicon/favicon_32x32.ico" />
+  <%= javascript_include_tag "new_map" %>
   <%= javascript_include_tag "//cartodb.s3.amazonaws.com/embed/wax.g.js" %>
 
   <script type="text/javascript">
@@ -113,10 +114,10 @@
               carto_embed_map.setZoom(map_style.zoom);
               // var position = new google.maps.LatLng(map_style.latitude,map_style.longitude);
             } else {
-              getCartoDBBBox();
+              getCartoDBBBox(null, carto_embed_map);
             }
           } else {
-            getCartoDBBBox();
+            getCartoDBBBox(null, carto_embed_map);
             carto_embed_map.setOptions({mapTypeId: google.maps.MapTypeId.ROADMAP});
             map_style = {};
             map_style.google_maps_customization_style = [ { stylers: [ { saturation: -65 }, { gamma: 1.52 } ] }, { featureType: "administrative", stylers: [ { saturation: -95 },{ gamma: 2.26 } ] }, { featureType: "water", elementType: "labels", stylers: [ { visibility: "off" } ] }, { featureType: "administrative.locality", stylers: [ { visibility: 'off' } ] }, { featureType: "road", stylers: [ { visibility: "simplified" }, { saturation: -99 }, { gamma: 2.22 } ] }, { featureType: "poi", elementType: "labels", stylers: [ { visibility: "off" } ] }, { featureType: "road.arterial", stylers: [ { visibility: 'off' } ] }, { featureType: "road.local", elementType: "labels", stylers: [ { visibility: 'off' } ] }, { featureType: "transit", stylers: [ { visibility: 'off' } ] }, { featureType: "road", elementType: "labels", stylers: [ { visibility: 'off' } ] },{ featureType: "poi", stylers: [ { saturation: -55 } ] } ];
@@ -151,6 +152,75 @@
         cartodb_table_id    : cartodb_table_id,
         cartodb_map         : carto_embed_map,
         cartodb_map_canvas  : 'map_cartodb_container'
+      };
+
+      // Wax interaction
+      function addCartoDBInteraction(params) {
+        var currentCartoDbId,
+            tilejson = generateTileJson(params);
+            infowindow = new CartoDBInfowindow(params);
+            cache_buster = 0;
+
+        var waxOptions = {
+          callbacks: {
+            out: function(){
+              params.cartodb_map.setOptions({draggableCursor: 'default'});
+            },
+            over: function(feature, div, opt3, evt){
+              params.cartodb_map.setOptions({draggableCursor: 'pointer'});
+            },
+            click: function(feature, div, opt3, evt){
+              infowindow.open(feature,evt.latLng);
+            }
+          },
+          clickAction: 'full'
+        };
+
+        var wax_tile = new wax.g.connector(tilejson);
+        params.cartodb_map.overlayMapTypes.insertAt(0,wax_tile);
+        var interaction = wax.g.interaction(params.cartodb_map, tilejson, waxOptions);
+
+
+        // Generate tilejson
+        function generateTileJson(params) {
+          var core_url = TILEHTTP + '://' + params.cartodb_user_name + '.' + TILESERVER;
+          var base_url = core_url + '/tiles/' + params.cartodb_table_name + '/{z}/{x}/{y}';
+          var tile_url = base_url + '.png?cache_buster=0';
+          var grid_url = base_url + '.grid.json';
+
+          // SQL?
+          if (params.cartodb_sql) {
+            var query = 'sql=' + params.cartodb_sql;
+            tile_url = wax.util.addUrlData(tile_url, query);
+            grid_url = wax.util.addUrlData(grid_url, query);
+          }
+
+          // Style
+          if (params.cartodb_style) {
+            var style = 'style=' + params.cartodb_style;
+            tile_url = wax.util.addUrlData(tile_url,style);
+            grid_url = wax.util.addUrlData(grid_url,style);
+          }
+
+
+          // Build up the tileJSON
+          return {
+            blankImage: TILEHTTP + '://cartodb.s3.amazonaws.com/embed/blank_tile.png',
+            tilejson: '1.0.0',
+            scheme: 'xyz',
+            tiles: [tile_url],
+            grids: [grid_url],
+            tiles_base: tile_url,
+            grids_base: grid_url,
+            formatter: function(options, data) {
+                currentCartoDbId = data.cartodb_id;
+                return data.cartodb_id;
+            },
+            cache_buster: function(){
+                return params.cache_buster;
+            }
+          };
+        };
       };
 
       // Add wax interaction
