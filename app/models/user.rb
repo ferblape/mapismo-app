@@ -54,6 +54,11 @@ class User
                         "permalink varchar, data varchar, the_geom geometry, source varchar," +
                         "source_id varchar"
     connection.create_table(Mapismo.data_table, data_table_schema, {privacy: :public, geometry: 'Point'})
+    connection.add_index_to_table(Mapismo.data_table, "date")
+    connection.add_index_to_table(Mapismo.data_table, "map_id")
+    connection.add_index_to_table(Mapismo.data_table, "source")
+    connection.add_index_to_table(Mapismo.data_table, "source_id")
+    connection.add_index_to_table(Mapismo.data_table, "map_id,source,source_id", unique: true)
   end
 
   def maps
