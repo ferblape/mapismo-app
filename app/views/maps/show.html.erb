@@ -14,11 +14,10 @@
           TILESERVER = "cartodb.com",
           SQL_SERVER = 'cartodb.com',
           global_api_url = '/api/v1/',
-          map_id = '<%= @map.id %>';
-
-    var cartodb_sql = escape('SELECT * FROM <%= Mapismo.data_table %> WHERE map_id=<%= @map.id %>'),
-        cartodb_style,
-        cartodb_params = [];
+          map_id = '<%= @map.id %>',
+          cartodb_sql = escape('SELECT * FROM <%= Mapismo.data_table %> WHERE map_id=<%= @map.id %>'),
+          cartodb_style,
+          cartodb_params = [];
 
     $(function() {
 

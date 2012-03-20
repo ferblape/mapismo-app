@@ -14,7 +14,7 @@
         TILESERVER = "cartodb.com",
         SQL_SERVER = 'cartodb.com',
         global_api_url = '/api/v1/',
-        cartodb_sql,
+        cartodb_sql = escape('SELECT * FROM <%= Mapismo.data_table %> WHERE map_id=<%= @map.id %>'),
         cartodb_style,
         cartodb_params = [],
         marker, polygon, carto_embed_map,
@@ -114,10 +114,10 @@
               carto_embed_map.setZoom(map_style.zoom);
               // var position = new google.maps.LatLng(map_style.latitude,map_style.longitude);
             } else {
-              getCartoDBBBox(null, carto_embed_map);
+              // getCartoDBBBox(null, carto_embed_map);
             }
           } else {
-            getCartoDBBBox(null, carto_embed_map);
+            // getCartoDBBBox(null, carto_embed_map);
             carto_embed_map.setOptions({mapTypeId: google.maps.MapTypeId.ROADMAP});
             map_style = {};
             map_style.google_maps_customization_style = [ { stylers: [ { saturation: -65 }, { gamma: 1.52 } ] }, { featureType: "administrative", stylers: [ { saturation: -95 },{ gamma: 2.26 } ] }, { featureType: "water", elementType: "labels", stylers: [ { visibility: "off" } ] }, { featureType: "administrative.locality", stylers: [ { visibility: 'off' } ] }, { featureType: "road", stylers: [ { visibility: "simplified" }, { saturation: -99 }, { gamma: 2.22 } ] }, { featureType: "poi", elementType: "labels", stylers: [ { visibility: "off" } ] }, { featureType: "road.arterial", stylers: [ { visibility: 'off' } ] }, { featureType: "road.local", elementType: "labels", stylers: [ { visibility: 'off' } ] }, { featureType: "transit", stylers: [ { visibility: 'off' } ] }, { featureType: "road", elementType: "labels", stylers: [ { visibility: 'off' } ] },{ featureType: "poi", stylers: [ { saturation: -55 } ] } ];
@@ -185,7 +185,7 @@
         function generateTileJson(params) {
           var core_url = TILEHTTP + '://' + params.cartodb_user_name + '.' + TILESERVER;
           var base_url = core_url + '/tiles/' + params.cartodb_table_name + '/{z}/{x}/{y}';
-          var tile_url = base_url + '.png?cache_buster=0';
+          var tile_url = base_url + '.png?cache_buster=0&sql=' + params.cartodb_sql;
           var grid_url = base_url + '.grid.json';
 
           // SQL?
