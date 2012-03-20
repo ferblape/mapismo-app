@@ -210,6 +210,35 @@ describe "MapismoApp::CartoDBConnection" do
       end
     end
 
+    describe "#add_index_to_table" do
+      it "should run a query to add an index to the table" do
+        connection.stubs(:response).returns(mocked_response(200))
+        subject.stubs(:connection).returns(connection)
+
+        subject.expects(:run_query).with("CREATE INDEX field1_idx ON mytable (field1)").once
+
+        subject.add_index_to_table("mytable", "field1").should be_true
+      end
+
+      it "should sanitize the name of the index" do
+        connection.stubs(:response).returns(mocked_response(200))
+        subject.stubs(:connection).returns(connection)
+
+        subject.expects(:run_query).with("CREATE INDEX field1_field2_idx ON mytable (field1,field2)").once
+
+        subject.add_index_to_table("mytable", "field1,field2").should be_true
+      end
+
+      it "should create an unique index if option :unique is set" do
+        connection.stubs(:response).returns(mocked_response(200))
+        subject.stubs(:connection).returns(connection)
+
+        subject.expects(:run_query).with("CREATE UNIQUE INDEX field1_field2_idx ON mytable (field1,field2)").once
+
+        subject.add_index_to_table("mytable", "field1,field2", unique: true).should be_true
+      end
+    end
+
     context "private methods" do
       describe "#convert_to_insert_query" do
         it "should convert a name and a hash of attributes into a valid insert query" do

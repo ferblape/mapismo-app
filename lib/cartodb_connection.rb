@@ -2,14 +2,14 @@
 
 module MapismoApp
   class CartoDBConnection
-    
+
     attr_accessor :connection
-  
+
     def initialize(connection)
       raise "Connection is required" if connection.nil?
       @connection = connection
     end
-  
+
     def table_exists?(table_name)
       run_query("SELECT cartodb_id FROM #{table_name} LIMIT 1")
       connection.response.code.to_i == 200
@@ -17,7 +17,7 @@ module MapismoApp
 
     def create_table(name, schema, options = {})
       options[:privacy] ||= :private
-      
+
       table_options = {
         name: name,
         schema: schema
@@ -32,13 +32,11 @@ module MapismoApp
           if connection.response.code.to_i == 200
             return true
           else
-            response = JSON.parse(connection.response.body)
-            raise response["error"][0]
+            raise_error
           end
         end
       else
-        response = JSON.parse(connection.response.body)
-        raise response["error"][0]
+        raise_error
       end
     end
 
@@ -66,11 +64,10 @@ module MapismoApp
       if connection.response.code.to_i == 200
         return true
       else
-        response = JSON.parse(connection.response.body)
-        raise response["error"][0]
+        raise_error
       end
     end
-    
+
     def get_id_from_last_record(table_name)
       run_query("SELECT cartodb_id FROM #{table_name} ORDER BY created_at DESC LIMIT 1")
       if connection.response.code.to_i == 200
@@ -84,11 +81,22 @@ module MapismoApp
         return nil
       end
     end
-    
+
     def run_query(query, method = :get)
       request = Mapismo.cartodb_api_endpoint + "?q=" + CGI.escape(query)
       connection.send(method, request)
       return connection.response
+    end
+
+    def add_index_to_table(table_name, column, options = {})
+      unique_str = (options[:unique] == true) ? 'UNIQUE ' : ''
+      column_sanitized = column.tr(',','_')
+      run_query("CREATE #{unique_str}INDEX #{column_sanitized}_idx ON #{table_name} (#{column})")
+      if connection.response.code.to_i == 200
+        return true
+      else
+        raise_error
+      end
     end
 
     private
@@ -100,12 +108,17 @@ module MapismoApp
         attributes_list << k
         values_list << "'#{v}'"
       end
-      return "INSERT INTO #{name} (#{attributes_list.join(',')}) VALUES (#{values_list.join(',')})" 
+      return "INSERT INTO #{name} (#{attributes_list.join(',')}) VALUES (#{values_list.join(',')})"
     end
-  
+
     def load_consumer
-      OAuth::Consumer.new(Mapismo.consumer_key, Mapismo.consumer_secret, 
+      OAuth::Consumer.new(Mapismo.consumer_key, Mapismo.consumer_secret,
                             {site: Mapismo.cartodb_oauth_endpoint(Mapismo.cartodb_username)})
+    end
+
+    def raise_error
+      response = JSON.parse(connection.response.body)
+      raise response["error"][0]
     end
   end
 end
