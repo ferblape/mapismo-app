@@ -24,16 +24,18 @@ module MapismoApp
       connection.post("/api/v1/tables", {name: name})
 
       raise_error if connection.response.code.to_i != 200
+      queries = []
 
       if !schema.blank?
         %W{ name description }.each do |to_remove|
-          run_query("ALTER TABLE #{name} DROP COLUMN #{to_remove}")
-          raise_error if connection.response.code.to_i != 200
+          queries.push("ALTER TABLE #{name} DROP COLUMN #{to_remove}")
         end
         schema.split(',').each do |to_add|
-          run_query("ALTER TABLE #{name} ADD COLUMN #{to_add.strip}")
-          raise_error if connection.response.code.to_i != 200
+          queries.push("ALTER TABLE #{name} ADD COLUMN #{to_add.strip}")
         end
+
+        run_query(queries.join(';'))
+        raise_error if connection.response.code.to_i != 200
       end
 
       if options[:privacy] == :public
