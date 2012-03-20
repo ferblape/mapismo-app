@@ -1,9 +1,9 @@
 # coding: UTF-8
 
 class User
-  
+
   attr_reader :id, :username, :token, :secret, :data_table_id
-  
+
   def initialize(attributes)
     @id = attributes[:id]
     @username = attributes[:username]
@@ -34,28 +34,28 @@ class User
         oauth_secret: attributes[:secret],
         data_table_id: 0
       })
-      
+
       user = new(attributes)
       user.setup_cartodb_tables!
       user.update_data_table_id!
-      
+
       user
     else
       raise "Error creating user #{$!}"
     end
   end
-  
+
   def setup_cartodb_tables!
-    maps_table_schema = "name varchar, sources varchar, keywords varchar, start_date varchar," + 
+    maps_table_schema = "name varchar, sources varchar, keywords varchar, start_date varchar," +
                         "end_date varchar, radius integer, location_name varchar, lat float, lon float"
     connection.create_table(Mapismo.maps_table, maps_table_schema)
-    
+
     data_table_schema = "map_id integer, avatar_url varchar, username varchar, date timestamp," +
                         "permalink varchar, data varchar, the_geom geometry, source varchar," +
                         "source_id varchar"
     connection.create_table(Mapismo.data_table, data_table_schema, {privacy: :public, geometry: 'Point'})
   end
-  
+
   def maps
     connection.run_query("SELECT * from #{Mapismo.maps_table} ORDER BY created_at DESC")
     if connection.connection.response.code.to_i == 200
@@ -71,7 +71,7 @@ class User
       []
     end
   end
-  
+
   def update_data_table_id!
     connection.connection.get("/api/v1/tables")
     if connection.connection.response.code.to_i == 200
@@ -89,13 +89,13 @@ class User
       raise response["error"][0]
     end
   end
-  
+
   def get_connection
     connection
   end
-  
+
   private
-  
+
   def connection
     @connection ||= begin
       consumer = OAuth::Consumer.new(Mapismo.consumer_key, Mapismo.consumer_secret,

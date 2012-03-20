@@ -13,7 +13,7 @@ RSpec.configure do |config|
   config.run_all_when_everything_filtered = true
   config.filter_run_excluding :random_failure
   config.infer_base_class_for_anonymous_controllers = false
-  
+
   def mocked_response(code)
     response = mock()
     response.stubs(:code).returns(code)

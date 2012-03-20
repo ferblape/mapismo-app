@@ -2,7 +2,7 @@ module HelperMethods
   def click(locator)
     click_link_or_button(locator)
   end
-  
+
   def mock_cartodb_oauth(attributes)
     OmniAuth.config.mock_auth[:cartodb] = OmniAuth::AuthHash.new(
       'info' => {

@@ -43,7 +43,7 @@ CartoDBInfowindow.prototype.getActiveColumns = function(params) {
     },
     error: function(e){}
   });
-  
+
   function parseColumns(columns) {
     var str = '';
     for (p in columns) {
@@ -58,11 +58,11 @@ CartoDBInfowindow.prototype.getActiveColumns = function(params) {
 
 CartoDBInfowindow.prototype.draw = function() {
   var me = this;
-  
+
   var div = this.div_;
   if (!div) {
     div = this.div_ = $('#content');
-    
+
     google.maps.event.addDomListener(div, 'click', function (ev) {
       ev.preventDefault ? ev.preventDefault() : ev.returnValue = false;
     });
@@ -77,12 +77,12 @@ CartoDBInfowindow.prototype.draw = function() {
       ev.preventDefault ? ev.preventDefault() : ev.returnValue = false;
     });
     google.maps.event.addDomListener(div, 'mousewheel', function (ev) {
-    	ev.stopPropagation ? ev.stopPropagation() : window.event.cancelBubble = true;
+      ev.stopPropagation ? ev.stopPropagation() : window.event.cancelBubble = true;
     });
     google.maps.event.addDomListener(div, 'DOMMouseScroll', function (ev) {
-    	ev.stopPropagation ? ev.stopPropagation() : window.event.cancelBubble = true;
+      ev.stopPropagation ? ev.stopPropagation() : window.event.cancelBubble = true;
     });
-    
+
     // var panes = this.getPanes();
     // panes.floatPane.appendChild(div);
     // div.style.opacity = 0;
@@ -116,7 +116,7 @@ CartoDBInfowindow.prototype.updateInfoWindow = function(row, feature){
 CartoDBInfowindow.prototype.updatePagination = function(feature, featureList){
   $('#content nav.pagination a.prev').removeClass('disabled');
   $('#content nav.pagination a.next').removeClass('disabled');
-  
+
   if(featureList.indexOf(feature) == 0){
     $('#content nav.pagination a.prev').addClass('disabled');
   }
@@ -129,7 +129,7 @@ CartoDBInfowindow.prototype.open = function(feature,latlng,featureList){
   var that = this;
   that.feature_ = feature;
   that.latlng_ = latlng;
-  
+
   // If the table is private, you can't run any api methods without being
   $.ajax({
     method:'get',
@@ -142,7 +142,7 @@ CartoDBInfowindow.prototype.open = function(feature,latlng,featureList){
     },
     error: function(e) {}
   });
-} 
+}
 
 CartoDBInfowindow.prototype.hide = function() {
   if (this.div_) {

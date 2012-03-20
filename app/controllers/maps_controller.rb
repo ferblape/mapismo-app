@@ -1,7 +1,7 @@
 # coding: UTF-8
 
 class MapsController < ApplicationController
-  
+
   before_filter :login_required, except: [:show]
   before_filter :load_map, only: [:edit, :delete]
 
@@ -34,5 +34,5 @@ class MapsController < ApplicationController
   def delete
     @map = Map.find(user_id: current_user.id, id: params[:id])
   end
-  
+
 end
