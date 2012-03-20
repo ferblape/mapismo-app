@@ -51,7 +51,7 @@ class User
     connection.create_table(Mapismo.maps_table, maps_table_schema)
 
     data_table_schema = "map_id integer, avatar_url varchar, username varchar, date timestamp," +
-                        "permalink varchar, data varchar, the_geom geometry, source varchar," +
+                        "permalink varchar, data varchar, source varchar," +
                         "source_id varchar"
     connection.create_table(Mapismo.data_table, data_table_schema, {privacy: :public, geometry: 'Point'})
     connection.add_index_to_table(Mapismo.data_table, "date")

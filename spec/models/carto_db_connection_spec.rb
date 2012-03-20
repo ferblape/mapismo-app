@@ -43,7 +43,8 @@ describe "MapismoApp::CartoDBConnection" do
     describe "#create_table" do
       it "should return true when the table has been created" do
         connection.stubs(:response).returns(mocked_response(200))
-        connection.expects(:post).with("/api/v1/tables", {name: "new_table_name", schema: "f1 varchar, f2 integer"})
+        connection.expects(:post).with("/api/v1/tables", {name: "new_table_name"})
+        subject.stubs(:run_query).returns(true)
         subject.stubs(:connection).returns(connection)
 
         subject.create_table("new_table_name", "f1 varchar, f2 integer").should be_true
@@ -54,7 +55,7 @@ describe "MapismoApp::CartoDBConnection" do
         response.stubs(:body).returns("{\"error\":[\"error\"]}")
 
         connection.stubs(:response).returns(response)
-        connection.expects(:post).with("/api/v1/tables", {name: "new_table_name", schema: "f1 varchar, f2 integer"})
+        connection.expects(:post).with("/api/v1/tables", {name: "new_table_name"})
         subject.stubs(:connection).returns(connection)
 
         lambda {
@@ -66,7 +67,8 @@ describe "MapismoApp::CartoDBConnection" do
         it "should update the privacy of the created table" do
           connection.stubs(:response).returns(mocked_response(200)).then.returns(mocked_response(200))
           connection.expects(:put).with("/api/v1/tables/new_table_name?privacy=1")
-          connection.expects(:post).with("/api/v1/tables", {name: "new_table_name", schema: "f1 varchar, f2 integer"})
+          connection.expects(:post).with("/api/v1/tables", {name: "new_table_name"})
+          subject.stubs(:run_query).returns(true)
           subject.stubs(:connection).returns(connection)
 
           subject.create_table("new_table_name", "f1 varchar, f2 integer", {privacy: :public}).should be_true
@@ -76,8 +78,9 @@ describe "MapismoApp::CartoDBConnection" do
       context "when geometry type is set" do
         it "should send the type of geometry" do
           connection.stubs(:response).returns(mocked_response(200)).then.returns(mocked_response(200))
-          connection.expects(:post).with("/api/v1/tables", {name: "new_table_name", schema: "f1 varchar, f2 integer", the_geom_type: :point})
+          connection.expects(:post).with("/api/v1/tables", {name: "new_table_name"})
           subject.stubs(:connection).returns(connection)
+          subject.stubs(:run_query).returns(true)
 
           subject.create_table("new_table_name", "f1 varchar, f2 integer", {geometry: :point}).should be_true
         end
@@ -164,7 +167,7 @@ describe "MapismoApp::CartoDBConnection" do
     describe "#get_id_from_last_record" do
       context "if table exists" do
         it "should return the id of the last record" do
-          subject.expects(:run_query).once.with("SELECT cartodb_id FROM table ORDER BY created_at DESC LIMIT 1")
+          subject.expects(:run_query).once.with("SELECT cartodb_id FROM table ORDER BY cartodb_id DESC LIMIT 1")
 
           json = {
             total_rows: 1,
@@ -186,7 +189,7 @@ describe "MapismoApp::CartoDBConnection" do
 
       context "if table does not exist" do
         it "should return nil" do
-          subject.expects(:run_query).once.with("SELECT cartodb_id FROM table ORDER BY created_at DESC LIMIT 1")
+          subject.expects(:run_query).once.with("SELECT cartodb_id FROM table ORDER BY cartodb_id DESC LIMIT 1")
           response = mocked_response(400)
           connection.stubs(:response).returns(response)
           subject.stubs(:connection).returns(connection)

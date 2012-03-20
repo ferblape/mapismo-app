@@ -19,25 +19,29 @@ module MapismoApp
       options[:privacy] ||= :private
 
       table_options = {
-        name: name,
-        schema: schema
+        name: name
       }
-      table_options.merge!({the_geom_type: options[:geometry]}) if options[:geometry]
-      connection.post("/api/v1/tables", table_options)
-      if connection.response.code.to_i == 200
-        if options[:privacy] == :private
-          return true
-        else
-          connection.put("/api/v1/tables/#{name}?privacy=1")
-          if connection.response.code.to_i == 200
-            return true
-          else
-            raise_error
-          end
+      connection.post("/api/v1/tables", {name: name})
+
+      raise_error if connection.response.code.to_i != 200
+
+      if !schema.blank?
+        %W{ name description }.each do |to_remove|
+          run_query("ALTER TABLE #{name} DROP COLUMN #{to_remove}")
+          raise_error if connection.response.code.to_i != 200
         end
-      else
-        raise_error
+        schema.split(',').each do |to_add|
+          run_query("ALTER TABLE #{name} ADD COLUMN #{to_add.strip}")
+          raise_error if connection.response.code.to_i != 200
+        end
       end
+
+      if options[:privacy] == :public
+        connection.put("/api/v1/tables/#{name}?privacy=1")
+        raise_error if connection.response.code.to_i != 200
+      end
+
+      return true
     end
 
     def reset_table(name)
@@ -69,7 +73,7 @@ module MapismoApp
     end
 
     def get_id_from_last_record(table_name)
-      run_query("SELECT cartodb_id FROM #{table_name} ORDER BY created_at DESC LIMIT 1")
+      run_query("SELECT cartodb_id FROM #{table_name} ORDER BY cartodb_id DESC LIMIT 1")
       if connection.response.code.to_i == 200
         response = JSON.parse(connection.response.body)
         if response["total_rows"].to_i == 0
