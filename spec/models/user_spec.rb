@@ -157,6 +157,7 @@ describe 'User' do
       }
       $mapismo_conn.expects(:insert_row).with(Mapismo.users_table, attrs_converted).returns(true)
       User.any_instance.stubs(:update_data_table_id!).returns(true)
+      User.any_instance.stubs(:setup_cartodb_tables!).returns(true)
 
       User.create(attributes)
     end
@@ -172,6 +173,7 @@ describe 'User' do
     it "should return a new user object" do
       $mapismo_conn.stubs(:insert_row).returns(true)
       User.any_instance.stubs(:update_data_table_id!).returns(true)
+      User.any_instance.stubs(:setup_cartodb_tables!).returns(true)
       user = User.create(attributes)
       user.should be_an_instance_of(User)
       user.username.should == "blat"
@@ -180,6 +182,7 @@ describe 'User' do
     it "should update data_table_id value from the user" do
       $mapismo_conn.stubs(:insert_row).returns(true)
       User.any_instance.expects(:update_data_table_id!).once.returns(true)
+      User.any_instance.stubs(:setup_cartodb_tables!).returns(true)
       user = User.create(attributes)
       user.should be_an_instance_of(User)
       user.username.should == "blat"
