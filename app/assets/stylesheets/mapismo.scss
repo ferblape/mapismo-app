@@ -1,4 +1,4 @@
-/* http://meyerweb.com/eric/tools/css/reset/ 
+/* http://meyerweb.com/eric/tools/css/reset/
    v2.0 | 20110126
    License: none (public domain)
 */
@@ -12,39 +12,39 @@ b, u, i, center,
 dl, dt, dd, ol, ul, li,
 fieldset, form, label, legend,
 table, caption, tbody, tfoot, thead, tr, th, td,
-article, aside, canvas, details, embed, 
-figure, figcaption, footer, header, hgroup, 
+article, aside, canvas, details, embed,
+figure, figcaption, footer, header, hgroup,
 menu, nav, output, ruby, section, summary,
 time, mark, audio, video {
-	margin: 0;
-	padding: 0;
-	border: 0;
-	font-size: 100%;
-	font: inherit;
-	vertical-align: baseline;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 100%;
+  font: inherit;
+  vertical-align: baseline;
 }
 /* HTML5 display-role reset for older browsers */
-article, aside, details, figcaption, figure, 
+article, aside, details, figcaption, figure,
 footer, header, hgroup, menu, nav, section {
-	display: block;
+  display: block;
 }
 body {
-	line-height: 1;
+  line-height: 1;
 }
 ol, ul {
-	list-style: none;
+  list-style: none;
 }
 blockquote, q {
-	quotes: none;
+  quotes: none;
 }
 blockquote:before, blockquote:after,
 q:before, q:after {
-	content: '';
-	content: none;
+  content: '';
+  content: none;
 }
 table {
-	border-collapse: collapse;
-	border-spacing: 0;
+  border-collapse: collapse;
+  border-spacing: 0;
 }
 
 /* Sprites */
@@ -54,7 +54,7 @@ table {
 
 /* Rounded */
 .popover, #top_bar a, .social_networks label, .keywords_list li, #content .avatar, .button, #timeline {
-  -moz-border-radius: 3px; 
+  -moz-border-radius: 3px;
   -webkit-border-radius: 3px;
   border-radius: 3px;
 }
@@ -109,7 +109,7 @@ a.button, #top_bar a.button, .save_bar a {
   background-color: #2185db;
   border: none;
 }
-a.button:hover, #top_bar a.button:hover, .save_bar a:hover { 
+a.button:hover, #top_bar a.button:hover, .save_bar a:hover {
   background-color: #3498ed;
   cursor: pointer;
 }
@@ -117,7 +117,7 @@ a.button:hover, #top_bar a.button:hover, .save_bar a:hover {
   position: absolute;
   right: 18px;
 }
-a.button.disabled {
+a.button.disabled, #top_bar a.button.disabled {
   background-color: #9faeb6;
   text-shadow: none;
   color: #e1e3e4;
@@ -237,7 +237,7 @@ a.options {
   display: block;
   height: 70px;
   background-position: 9px -52px;
-} 
+}
 .social_networks .flickr span {
   background-position: -91px -46px;
 }
@@ -343,7 +343,7 @@ a.options {
 }
 .ui-datepicker-prev:hover {
   background-position: -178px -200px;
-} 
+}
 .ui-datepicker-next {
   float: right;
   background-position: -218px -200px;
@@ -456,7 +456,7 @@ a.options {
 #content .item_data a:hover {
   color: #303030;
 }
-#content .item_data p strong { 
+#content .item_data p strong {
   color: #303030;
   font-weight: bold;
   font-size: 14px;
@@ -540,18 +540,18 @@ a.options {
 
 /*Map controls*/
 span.cartodb_map_controls {
-  width:30px; 
+  width:30px;
   height: 61px
 }
 span.cartodb_map_controls a.cartodb_map_embed_zoom_in {
-  background-position: 0 -284px;  
+  background-position: 0 -284px;
 }
 span.cartodb_map_controls a.cartodb_map_embed_zoom_in:hover {
   background-position: -30px -284px;
   cursor: pointer;
 }
 span.cartodb_map_controls a.cartodb_map_embed_zoom_out {
-  background-position: 0 -315px;  
+  background-position: 0 -315px;
   border-top: 1px solid #838383;
 }
 span.cartodb_map_controls a.cartodb_map_embed_zoom_out:hover {

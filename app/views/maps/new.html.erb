@@ -14,7 +14,7 @@
         TILESERVER = "cartodb.com",
         SQL_SERVER = 'cartodb.com',
         global_api_url = '/api/v1/',
-        cartodb_sql = escape('SELECT * FROM <%= Mapismo.data_table %> WHERE map_id=<%= @map.id %>'),
+        cartodb_sql = escape('SELECT * FROM <%= Mapismo.data_table %> WHERE map_id=<%= @map.id || 0 %>'),
         cartodb_style,
         cartodb_params = [],
         marker, polygon, carto_embed_map,
@@ -125,7 +125,9 @@
 
           carto_embed_map.setZoom(15);
           var position = new google.maps.LatLng($('#map_lat').val(),$('#map_lon').val());
-          carto_embed_map.setCenter(position);
+          // Center the map a bit in the south
+          var fakePosition = new google.maps.LatLng(parseFloat($('#map_lat').val()) + 0.0025,$('#map_lon').val());
+          carto_embed_map.setCenter(fakePosition);
           marker = new google.maps.Marker({ position:position,map:carto_embed_map,draggable:true});
           google.maps.event.addListener(marker,'dragend',function(){
             var latlng = marker.getPosition();
@@ -246,26 +248,22 @@
   in <a href="#" data-type="where"></a>
   on <a href="#" data-type="when"></a>
 
-  <a href="#" class="button">Go</a>
+  <a href="#" class="button disabled" disabled="disabled">Go</a>
 </header>
 
 <%= form_for :map, url: maps_path do |f|%>
 
-<input type="hidden" name="map[name]" value="" id="map_name" />
 <div class="save_bar">
   Done?
   <a href="#" class="button">Save map</a>
 </div>
 
+<input type="hidden" name="map[name]" value="" id="map_name" />
+
 <div class="popover what">
   <h2>What</h2>
 
   <div class="social_networks">
-    <label for="twitter" class="twitter">
-      <span>Twitter</span>
-      <input name="map[sources][]" type="hidden" value="" />
-      <input name="map[sources][]" type="checkbox" value="twitter" id="twitter"/>
-    </label>
     <label for="flickr" class="flickr">
       <span>Flickr</span>
       <input name="map[sources][]" type="hidden" value="" />

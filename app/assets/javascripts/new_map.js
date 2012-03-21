@@ -42,19 +42,7 @@ function newMap(){
     },
 
     readyForSaving: function(){
-      if($('input#map_keywords').val().trim() == ""){
-        return false
-      }
-      if($('input#map_location_name').val().trim() == ""){
-        return false
-      }
-      if($('input#map_start_date').val().trim() == ""){
-        return false
-      }
-      if($('input#map_end_date').val().trim() == ""){
-        return false
-      }
-      return true;
+      return false;
     },
 
     updatePopoverPositions: function(){
