@@ -18,7 +18,7 @@ function newMap(){
 
     _formatTimeLong: function(time){
       if(time != null) {
-        return '+' + time.getHours() + ':' + time.getMinutes() + ':' + time.getUTCSeconds();
+        return '+' + time.getUTCHours() + ':' + time.getUTCMinutes() + ':' + time.getUTCSeconds();
       } else {
         return "";
       }
@@ -192,8 +192,8 @@ function newMap(){
     },
 
     initMapValues: function(){
-      this.whatValues(['flickr','instagram'], ['football','15m']);
-      this.whereValue('Madrid');
+      this.whatValues(['flickr'], ['fallas']);
+      this.whereValue('Valencia');
     },
     map: null,
     geocoder: null,
@@ -242,9 +242,8 @@ function newMap(){
         }
       });
 
-      var toDate = new Date();
-      var fromDate = new Date();
-      fromDate.setDate(fromDate.getDate() - 1);
+      var toDate = new Date("2012-03-20");
+      var fromDate = new Date("2012-03-01");
       $('#from_day').datepicker('setDate', this._formatDateLong(fromDate));
       $('#to_day').datepicker('setDate', this._formatDateLong(toDate));
 
@@ -282,6 +281,7 @@ function newMap(){
 
       this.parentElement().find('a[data-type=what]').on({
         click: function(e){
+          $('#content').hide();
           $('.popover.where, .popover.when').hide();
           $('.popover.what').toggle();
           that.parentElement().find('a').removeClass('selected');
@@ -295,6 +295,7 @@ function newMap(){
 
       this.parentElement().find('a[data-type=where]').on({
         click: function(e){
+          $('#content').hide();
           $('.popover.what, .popover.when').hide();
           $('.popover.where').toggle();
           that.parentElement().find('a').removeClass('selected');
@@ -308,6 +309,7 @@ function newMap(){
 
       this.parentElement().find('a[data-type=when]').on({
         click: function(e){
+          $('#content').hide();
           $('.popover.where, .popover.what').hide();
           $('.popover.when').toggle();
           that.parentElement().find('a').removeClass('selected');
@@ -339,9 +341,13 @@ function newMap(){
 
       $('a.button').on({
         click: function(e){
+          if($(this).is(':disabled')){
+            return false;
+          }
           if($(this).parents('form').length > 0){
             $(this).parents('form').submit();
           }
+          e.preventDefault(); e.stopPropagation();
         }
       });
     }

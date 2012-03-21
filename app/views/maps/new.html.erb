@@ -14,7 +14,7 @@
         TILESERVER = "cartodb.com",
         SQL_SERVER = 'cartodb.com',
         global_api_url = '/api/v1/',
-        cartodb_sql = escape('SELECT * FROM <%= Mapismo.data_table %> WHERE map_id=<%= @map.id || 0 %>'),
+        cartodb_sql = escape('SELECT * FROM <%= Mapismo.data_table %> WHERE map_id=0'),
         cartodb_style,
         cartodb_params = [],
         marker, polygon, carto_embed_map,
@@ -144,24 +144,67 @@
         error: function(e){}
       });
 
-
       // Necessary params for wax and infowindow
-      cartodb_params = {
-        cartodb_sql         : cartodb_sql,
-        cartodb_style       : cartodb_style,
-        cartodb_user_name   : cartodb_user_name,
-        cartodb_table_name  : cartodb_table_name,
-        cartodb_table_id    : cartodb_table_id,
-        cartodb_map         : carto_embed_map,
-        cartodb_map_canvas  : 'map_cartodb_container'
-      };
+      var cartodb_params = {
+            cartodb_sql         : cartodb_sql,
+            cartodb_style       : cartodb_style,
+            cartodb_user_name   : cartodb_user_name,
+            cartodb_table_name  : cartodb_table_name,
+            cartodb_table_id    : cartodb_table_id,
+            cartodb_map         : carto_embed_map,
+            cartodb_map_canvas  : 'map_cartodb_container'
+          }
+      var infowindow, featureList = [];
+
+
+      // Load the list of features
+      $.ajax({
+        url: TILEHTTP + '://'+cartodb_user_name+'.' + SQL_SERVER + global_api_url+ 'sql/?q='+
+              escape('select cartodb_id from '+ cartodb_table_name + ' where map_id=0'),
+        type: 'GET',
+        dataType: 'jsonp',
+        success:function(result){
+          result.rows.forEach(function(row){
+            featureList.push(row.cartodb_id);
+          });
+          // Add wax interaction
+          addCartoDBInteraction(cartodb_params, infowindow, featureList);
+        }
+      });
 
       // Wax interaction
-      function addCartoDBInteraction(params) {
+      function addCartoDBInteraction(params, infowindow, featureList) {
         var currentCartoDbId,
-            tilejson = generateTileJson(params);
-            infowindow = new CartoDBInfowindow(params);
+            tilejson = generateTileJson(params),
             cache_buster = 0;
+        infowindow = new CartoDBInfowindow(params);
+
+        $('#content nav.pagination a.prev').on({
+          click: function(e){
+            if(!$(this).hasClass('disabled')){
+              var currentFeature = parseInt($('#current_feature').val());
+              var index = featureList.indexOf(currentFeature);
+              if(index > 0) {
+                infowindow.open(featureList[index-1],null,featureList);
+              }
+            }
+            e.preventDefault(); e.stopPropagation();
+          }
+        });
+
+        $('#content nav.pagination a.next').on({
+          click: function(e){
+            if(!$(this).hasClass('disabled')){
+              currentFeature = $('#current_feature').val();
+              var currentFeature = parseInt($('#current_feature').val());
+              var index = featureList.indexOf(currentFeature);
+              if(index < featureList.length-1) {
+                infowindow.open(featureList[index+1],null,featureList);
+              }
+            }
+            e.preventDefault(); e.stopPropagation();
+          }
+        });
 
         var waxOptions = {
           callbacks: {
@@ -172,7 +215,7 @@
               params.cartodb_map.setOptions({draggableCursor: 'pointer'});
             },
             click: function(feature, div, opt3, evt){
-              infowindow.open(feature,evt.latLng);
+              infowindow.open(feature,evt.latLng,featureList);
             }
           },
           clickAction: 'full'
@@ -182,28 +225,12 @@
         params.cartodb_map.overlayMapTypes.insertAt(0,wax_tile);
         var interaction = wax.g.interaction(params.cartodb_map, tilejson, waxOptions);
 
-
         // Generate tilejson
         function generateTileJson(params) {
           var core_url = TILEHTTP + '://' + params.cartodb_user_name + '.' + TILESERVER;
           var base_url = core_url + '/tiles/' + params.cartodb_table_name + '/{z}/{x}/{y}';
           var tile_url = base_url + '.png?cache_buster=0&sql=' + params.cartodb_sql;
           var grid_url = base_url + '.grid.json';
-
-          // SQL?
-          if (params.cartodb_sql) {
-            var query = 'sql=' + params.cartodb_sql;
-            tile_url = wax.util.addUrlData(tile_url, query);
-            grid_url = wax.util.addUrlData(grid_url, query);
-          }
-
-          // Style
-          if (params.cartodb_style) {
-            var style = 'style=' + params.cartodb_style;
-            tile_url = wax.util.addUrlData(tile_url,style);
-            grid_url = wax.util.addUrlData(grid_url,style);
-          }
-
 
           // Build up the tileJSON
           return {
@@ -224,9 +251,6 @@
           };
         };
       };
-
-      // Add wax interaction
-      addCartoDBInteraction(cartodb_params);
 
       // Zoom bindings
       $('a.cartodb_map_embed_zoom_in').click(function(ev){
@@ -294,8 +318,8 @@
 
   <div id="radius-picker"></div>
 
-  <input id="map_lat" name="map[lat]" type="hidden" value="40.416691" />
-  <input id="map_lon" name="map[lon]" type="hidden" value="-3.700345" />
+  <input id="map_lat" name="map[lat]" type="hidden" value="39.4702393" />
+  <input id="map_lon" name="map[lon]" type="hidden" value="-0.37680490000002465" />
   <input id="map_radius" name="map[radius]" type="hidden" value="1000" />
 </div>
 
@@ -325,6 +349,25 @@
   <a href="#zoom_in" class="cartodb_map_embed_zoom_in">+</a>
   <a href="#zoom_out" class="cartodb_map_embed_zoom_out">-</a>
 </span>
+
+<div class="popover" id="content" style="display:none">
+  <div class="header">
+    <nav class="pagination">
+      <a href="#" class="prev" title="Previous">Previous item</a>
+      <a href="#" class="next" title="Next">Next item</a>
+    </nav>
+
+    <div class="item_data">
+      <img src="" alt="" class="avatar">
+      <p>
+        <strong></strong><br>
+        <span class="date"></span> · <a href="#" target="blank"></a>
+      </p>
+    </div>
+  </div>
+  <div class="content"></div>
+  <input type="hidden" id="current_feature" />
+</div>
 
 <%= content_for :js do %>
 <% end %>

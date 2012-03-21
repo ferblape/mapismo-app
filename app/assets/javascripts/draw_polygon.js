@@ -36,6 +36,7 @@ function polygonDrawHandler(polygon, position) {
           strokeOpacity: 0.62,
           fillColor: '#004de8',
           fillOpacity: 0.07,
+          clickable: false,
           geodesic: true,
           map: carto_embed_map
       });

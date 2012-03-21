@@ -89,8 +89,13 @@ module MapismoApp
     end
 
     def run_query(query, method = :get)
-      request = Mapismo.cartodb_api_endpoint + "?q=" + CGI.escape(query)
-      connection.send(method, request)
+      request = Mapismo.cartodb_api_endpoint
+      if(method == :get)
+        request += "?q=" + CGI.escape(query)
+        connection.send(method, request)
+      else
+        connection.send(method, request, {q: query})
+      end
       return connection.response
     end
 

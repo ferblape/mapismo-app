@@ -54,11 +54,17 @@ class User
                         "permalink varchar, data varchar, source varchar," +
                         "source_id varchar"
     connection.create_table(Mapismo.data_table, data_table_schema, {privacy: :public, geometry: 'Point'})
+
+    # Create indexes for the table
     connection.add_index_to_table(Mapismo.data_table, "date")
     connection.add_index_to_table(Mapismo.data_table, "map_id")
     connection.add_index_to_table(Mapismo.data_table, "source")
     connection.add_index_to_table(Mapismo.data_table, "source_id")
     connection.add_index_to_table(Mapismo.data_table, "map_id,source,source_id", unique: true)
+
+    # Load demo data
+    sql = File.open("db/demo-data.sql").read.gsub(/\n/,'')
+    connection.connection.post(Mapismo.cartodb_api_endpoint ,{q: sql})
   end
 
   def maps

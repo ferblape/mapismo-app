@@ -202,9 +202,9 @@ describe "MapismoApp::CartoDBConnection" do
     describe "#run_query" do
       it "should call API endpoint with the given query" do
         query = "SELECT * FROM wadus"
-        request = Mapismo.cartodb_api_endpoint + "?q=" + CGI.escape(query)
+        request = Mapismo.cartodb_api_endpoint
 
-        connection.expects(:post).with(request).once.returns(true)
+        connection.expects(:post).with(request, {q: query}).once.returns(true)
         connection.stubs(:response).returns(mocked_response(200))
 
         subject.stubs(:connection).returns(connection)
