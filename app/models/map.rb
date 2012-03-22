@@ -6,12 +6,13 @@ class Map
   attr_reader :user_id, :keywords, :sources, :radius,
               :end_date, :start_date, :lat, :lon
 
-  attr_accessor :name, :location_name, :id
+  attr_accessor :name, :location_name, :id, :preview_token
 
   def initialize(attributes = {})
     @id = attributes[:id] || nil
     @name = attributes[:name] || ""
     @location_name = attributes[:location_name] || ""
+    @preview_token = attributes[:preview_token] || ""
 
     if attributes[:user_id]
       @user_id = attributes[:user_id].to_i
@@ -100,6 +101,8 @@ class Map
   end
 
   def save
+    @preview_token = nil
+
     row = {
       name: @name,
       sources: self.sources.join(','),
@@ -109,7 +112,8 @@ class Map
       radius: self.radius,
       location_name: self.location_name,
       lat: self.lat,
-      lon: self.lon
+      lon: self.lon,
+      preview_token: @preview_token
     }
 
     connection = self.user.get_connection
@@ -120,6 +124,17 @@ class Map
     else
       raise "Error creating map: #{$!}"
     end
+  end
+
+  # Send a message to get preview data to the workers
+  # In order to get that, map_id must be 0
+  # and the previous data for the preview token must have been removed
+  def fetch_preview_data!
+    @id = 0
+    connection = self.user.get_connection
+    connection.run_query("DELETE FROM #{Mapismo.data_table} WHERE preview_token = '#{@preview_token}'")
+    notify_workers
+    return true
   end
 
   def self.row_to_attributes(row, user)
@@ -166,7 +181,8 @@ class Map
       longitude: self.lon,
       radius: self.radius,
       start_date: self.start_date,
-      end_date: self.end_date
+      end_date: self.end_date,
+      preview_token: self.preview_token
     }
     worker_notifier = WorkerNotifier.new
 

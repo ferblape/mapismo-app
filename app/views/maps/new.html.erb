@@ -14,7 +14,8 @@
         TILESERVER = "cartodb.com",
         SQL_SERVER = 'cartodb.com',
         global_api_url = '/api/v1/',
-        cartodb_sql = escape('SELECT * FROM <%= Mapismo.data_table %> WHERE map_id=0'),
+        map_id = '0',
+        cartodb_sql = escape('SELECT * FROM <%= Mapismo.data_table %> WHERE map_id=' + map_id + ' AND preview_token IS NULL'),
         cartodb_style,
         cartodb_params = [],
         marker, polygon, carto_embed_map,
@@ -154,13 +155,13 @@
             cartodb_map         : carto_embed_map,
             cartodb_map_canvas  : 'map_cartodb_container'
           }
-      var infowindow, featureList = [];
-
+      var infowindow = new CartoDBInfowindow(cartodb_params),
+          featureList = [];
 
       // Load the list of features
       $.ajax({
-        url: TILEHTTP + '://'+cartodb_user_name+'.' + SQL_SERVER + global_api_url+ 'sql/?q='+
-              escape('select cartodb_id from '+ cartodb_table_name + ' where map_id=0'),
+        url: TILEHTTP + '://'+cartodb_params.cartodb_user_name+'.' + SQL_SERVER + global_api_url+ 'sql/?q='+
+              escape('SELECT cartodb_id FROm '+ cartodb_params.cartodb_table_name + ' WHERE map_id=' + map_id + ' AND preview_token IS NULL'),
         type: 'GET',
         dataType: 'jsonp',
         success:function(result){
@@ -172,12 +173,26 @@
         }
       });
 
+      var waxOptions = {
+        callbacks: {
+          out: function(){
+            cartodb_params.cartodb_map.setOptions({draggableCursor: 'default'});
+          },
+          over: function(feature, div, opt3, evt){
+            cartodb_params.cartodb_map.setOptions({draggableCursor: 'pointer'});
+          },
+          click: function(feature, div, opt3, evt){
+            infowindow.open(feature,evt.latLng,featureList);
+          }
+        },
+        clickAction: 'full'
+      };
+
       // Wax interaction
       function addCartoDBInteraction(params, infowindow, featureList) {
         var currentCartoDbId,
             tilejson = generateTileJson(params),
             cache_buster = 0;
-        infowindow = new CartoDBInfowindow(params);
 
         $('#content nav.pagination a.prev').on({
           click: function(e){
@@ -206,50 +221,9 @@
           }
         });
 
-        var waxOptions = {
-          callbacks: {
-            out: function(){
-              params.cartodb_map.setOptions({draggableCursor: 'default'});
-            },
-            over: function(feature, div, opt3, evt){
-              params.cartodb_map.setOptions({draggableCursor: 'pointer'});
-            },
-            click: function(feature, div, opt3, evt){
-              infowindow.open(feature,evt.latLng,featureList);
-            }
-          },
-          clickAction: 'full'
-        };
-
         var wax_tile = new wax.g.connector(tilejson);
         params.cartodb_map.overlayMapTypes.insertAt(0,wax_tile);
         var interaction = wax.g.interaction(params.cartodb_map, tilejson, waxOptions);
-
-        // Generate tilejson
-        function generateTileJson(params) {
-          var core_url = TILEHTTP + '://' + params.cartodb_user_name + '.' + TILESERVER;
-          var base_url = core_url + '/tiles/' + params.cartodb_table_name + '/{z}/{x}/{y}';
-          var tile_url = base_url + '.png?cache_buster=0&sql=' + params.cartodb_sql;
-          var grid_url = base_url + '.grid.json';
-
-          // Build up the tileJSON
-          return {
-            blankImage: TILEHTTP + '://cartodb.s3.amazonaws.com/embed/blank_tile.png',
-            tilejson: '1.0.0',
-            scheme: 'xyz',
-            tiles: [tile_url],
-            grids: [grid_url],
-            tiles_base: tile_url,
-            grids_base: grid_url,
-            formatter: function(options, data) {
-                currentCartoDbId = data.cartodb_id;
-                return data.cartodb_id;
-            },
-            cache_buster: function(){
-                return params.cache_buster;
-            }
-          };
-        };
       };
 
       // Zoom bindings
@@ -260,6 +234,85 @@
       $('a.cartodb_map_embed_zoom_out').click(function(ev){
         ev.preventDefault();
         carto_embed_map.setZoom(carto_embed_map.getZoom()-1);
+      });
+
+      // Generate tilejson
+      function generateTileJson(params) {
+        var core_url = TILEHTTP + '://' + params.cartodb_user_name + '.' + TILESERVER;
+        var base_url = core_url + '/tiles/' + params.cartodb_table_name + '/{z}/{x}/{y}';
+        var tile_url = base_url + '.png?cache_buster=0&sql=' + params.cartodb_sql;
+        var grid_url = base_url + '.grid.json';
+
+        // Build up the tileJSON
+        return {
+          blankImage: TILEHTTP + '://cartodb.s3.amazonaws.com/embed/blank_tile.png',
+          tilejson: '1.0.0',
+          scheme: 'xyz',
+          tiles: [tile_url],
+          grids: [grid_url],
+          tiles_base: tile_url,
+          grids_base: grid_url,
+          formatter: function(options, data) {
+              currentCartoDbId = data.cartodb_id;
+              return data.cartodb_id;
+          },
+          cache_buster: function(){
+              return params.cache_buster;
+          }
+        };
+      };
+
+      $('#top_bar a.button').on({
+        click: function(e){
+          if($(this).is(':disabled')){
+            return false;
+          }
+          var mapData = {};
+          $('form input').each(function(){
+            mapData[this.name] = $(this).val();
+          });
+          mapData['map[sources][]'] = [];
+          $('.social_networks input:checkbox:checked').each(function(){
+            mapData['map[sources][]'].push($(this).val());
+          });
+          $('.popover').hide();
+          MAPISMO.newMap.showProgress();
+          $.ajax({
+            url: $(this).attr('href'),
+            type: 'POST',
+            data: mapData,
+            dataType: 'script',
+            success:function(result){
+              setTimeout(function(){
+                cartodb_params.cartodb_sql = escape('SELECT * FROM <%= Mapismo.data_table %> WHERE map_id=' + map_id + ' AND preview_token=\'' + $('#preview_token').val() + '\'');
+                tilejson = generateTileJson(cartodb_params);
+                wax_tile = new wax.g.connector(tilejson);
+                cartodb_params.cartodb_map.overlayMapTypes.insertAt(0,wax_tile);
+                interaction = wax.g.interaction(cartodb_params.cartodb_map, tilejson, waxOptions);
+
+                featureList = [];
+                // Load the list of features
+                $.ajax({
+                  url: TILEHTTP + '://'+cartodb_params.cartodb_user_name+'.' + SQL_SERVER + global_api_url+ 'sql/?q='+
+                        escape('SELECT cartodb_id FROM <%= Mapismo.data_table %> WHERE map_id=' + map_id + ' AND preview_token=\'' + $('#preview_token').val() + '\''),
+                  type: 'GET',
+                  dataType: 'jsonp',
+                  success:function(result){
+                    result.rows.forEach(function(row){
+                      featureList.push(row.cartodb_id);
+                    });
+                    // Add wax interaction
+                    addCartoDBInteraction(cartodb_params, infowindow, featureList);
+                    MAPISMO.newMap.hideProgress();
+                  }
+                });
+
+              }, 5000);
+              console.log(result);
+            }
+          });
+          e.preventDefault(); e.stopPropagation();
+        }
       });
     });
   </script>
@@ -272,14 +325,20 @@
   in <a href="#" data-type="where"></a>
   on <a href="#" data-type="when"></a>
 
-  <a href="#" class="button disabled" disabled="disabled">Go</a>
+  <a href="<%= map_preview_path %>" class="button disabled" disabled="disabled">Go</a>
 </header>
 
 <%= form_for :map, url: maps_path do |f|%>
 
+<input type="hidden" name="map[preview_token]" id="preview_token" value="<%= rand(36**6).to_s(36) %>" />
+
 <div class="save_bar">
   Done?
   <a href="#" class="button">Save map</a>
+</div>
+
+<div class="progress_bar" style="display:none">
+  Fetching results...
 </div>
 
 <input type="hidden" name="map[name]" value="" id="map_name" />
@@ -320,7 +379,7 @@
 
   <input id="map_lat" name="map[lat]" type="hidden" value="39.4702393" />
   <input id="map_lon" name="map[lon]" type="hidden" value="-0.37680490000002465" />
-  <input id="map_radius" name="map[radius]" type="hidden" value="1000" />
+  <input id="map_radius" name="map[radius]" type="hidden" value="1200" />
 </div>
 
 <div class="popover when">

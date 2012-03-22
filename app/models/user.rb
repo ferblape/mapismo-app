@@ -50,9 +50,9 @@ class User
                         "end_date varchar, radius integer, location_name varchar, lat float, lon float"
     connection.create_table(Mapismo.maps_table, maps_table_schema)
 
-    data_table_schema = "map_id integer, avatar_url varchar, username varchar, date timestamp," +
-                        "permalink varchar, data varchar, source varchar," +
-                        "source_id varchar"
+    data_table_schema = "map_id integer, avatar_url varchar, username varchar, date timestamp, " +
+                        "permalink varchar, data varchar, source varchar, " +
+                        "source_id varchar, preview_token varchar"
     connection.create_table(Mapismo.data_table, data_table_schema, {privacy: :public, geometry: 'Point'})
 
     # Create indexes for the table
@@ -60,6 +60,7 @@ class User
     connection.add_index_to_table(Mapismo.data_table, "map_id")
     connection.add_index_to_table(Mapismo.data_table, "source")
     connection.add_index_to_table(Mapismo.data_table, "source_id")
+    connection.add_index_to_table(Mapismo.data_table, "preview_token")
     connection.add_index_to_table(Mapismo.data_table, "map_id,source,source_id", unique: true)
 
     # Load demo data

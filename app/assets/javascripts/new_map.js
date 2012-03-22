@@ -107,6 +107,7 @@ function newMap(){
           this.disableKeywordInput();
         }
       }
+      this.enableGoButton();
     },
 
     whatValues: function(sources, keywords){
@@ -135,6 +136,7 @@ function newMap(){
     whereValue: function(value){
       $('input#map_location_name').val(value);
       this.updateMapBar();
+      this.enableGoButton();
     },
 
     setWhenValues: function(){
@@ -142,6 +144,33 @@ function newMap(){
                                 this._formatTimeLong($.timePicker("#from_time").getTime()));
       $('#map_end_date').val(this._formatDateLong($('#to_day').datepicker('getDate'))+
                               this._formatTimeLong($.timePicker("#to_time").getTime()));
+      this.enableGoButton();
+    },
+
+    enableGoButton: function(){
+      if(($('#map_location_name').val().isBlank()) || ($('#map_keywords').val().isBlank()) ||
+      ($('.social_networks input:checkbox:checked').length == 0) || ($('#from_day').val().isBlank()) ||
+      ($('#to_day').val().isBlank())){
+        this.disableGoButton();
+        return;
+      }
+      $('#top_bar a.button').attr('disabled', null).removeClass('disabled').html('Go');
+    },
+
+    disableGoButton: function(){
+      $('#top_bar a.button').attr('disabled', 'disabled');
+      $('#top_bar a.button').addClass('disabled');
+    },
+
+    showProgress: function(){
+      $('#top_bar a').removeClass('selected');
+      this.disableGoButton();
+      $('.save_bar').hide();
+      $('.progress_bar').show();
+    },
+
+    hideProgress: function(){
+      $('.progress_bar').fadeOut('slow');
     },
 
     updateMapBar: function(){
@@ -214,6 +243,7 @@ function newMap(){
         value: $('#map_radius').val(),
         slide: function(event, ui){
           $('#radius').html(ui.value + " meters");
+          that.enableGoButton();
         }
       });
 
@@ -323,6 +353,7 @@ function newMap(){
       $('.popover.what input').on({
         change: function(e){
           that.updateMapBar();
+          that.enableGoButton();
           if($(this).is(':checked')){
             $(this).parents('label').addClass('selected');
           } else {
@@ -350,6 +381,8 @@ function newMap(){
           e.preventDefault(); e.stopPropagation();
         }
       });
+
+      this.disableGoButton();
     }
   });
 }

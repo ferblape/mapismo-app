@@ -13,6 +13,14 @@ class MapsController < ApplicationController
     @map = Map.new(user_id: current_user.id)
   end
 
+  def preview
+    @map = Map.new(params[:map].merge(user_id: current_user.id))
+    @map.fetch_preview_data!
+    respond_to do |format|
+      format.js { render nothing: true }
+    end
+  end
+
   def create
     @map = Map.new(params[:map].merge(user_id: current_user.id))
     if @map.save

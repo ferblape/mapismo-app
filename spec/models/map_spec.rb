@@ -63,7 +63,72 @@ describe Map do
     end
   end
 
-  describe "save" do
+  describe "#fetch_preview_data" do
+    let(:subject) do
+      Map.new({
+        name: "15M in Madrid",
+        user_id: 1,
+        keywords: ["15m", "indignados"],
+        sources: ["instagram", "flickr"],
+        radius: 3500,
+        location_name: "Madrid",
+        lat: 40.416691,
+        lon: -3.700345,
+        start_date: "2011-05-15+00:00:00",
+        end_date: "2011-05-15+23:59:59",
+        preview_token: "123abc"
+      })
+    end
+
+    it "should remove old data from this token" do
+      connection = mock()
+      connection.expects(:run_query).with("DELETE FROM #{Mapismo.data_table} WHERE preview_token = '123abc'").once
+      user = mock()
+      user.stubs(:get_connection).returns(connection)
+      Map.any_instance.stubs(:user).returns(user)
+      Map.any_instance.stubs(:notify_workers).returns(true)
+      subject.fetch_preview_data!
+    end
+
+    it "should notify the workers" do
+      connection = mock()
+      connection.stubs(:run_query).once
+      user = mock()
+      user.stubs(:username).returns("blat")
+      user.stubs(:token).returns("token")
+      user.stubs(:secret).returns("secret")
+      user.stubs(:get_connection).returns(connection)
+      Map.any_instance.stubs(:user).returns(user)
+
+      base_message = {
+        cartodb_table_name: Mapismo.data_table,
+        cartodb_map_id: subject.id,
+        cartodb_username: subject.user.username,
+        cartodb_userid: subject.user_id,
+        cartodb_auth_token: subject.user.token,
+        cartodb_auth_secret: subject.user.secret,
+        latitude: subject.lat,
+        longitude: subject.lon,
+        radius: subject.radius,
+        start_date: subject.start_date,
+        end_date: subject.end_date,
+        preview_token: subject.preview_token
+      }
+      worker_notifier = mock()
+      WorkerNotifier.expects(:new).once.returns(worker_notifier)
+
+      worker_notifier.expects(:notify!).with({:cartodb_table_name => 'mapismo_data', :cartodb_map_id => 0, :cartodb_username => 'blat', :cartodb_userid => 1, :cartodb_auth_token => 'token', :cartodb_auth_secret => 'secret', :latitude => 40.416691, :longitude => -3.700345, :radius => 3500, :start_date => '2011-05-15+00:00:00', :end_date => '2011-05-15+23:59:59', :preview_token => "123abc", :keyword => '15m', :source => 'instagram'})
+      worker_notifier.expects(:notify!).with({:cartodb_table_name => 'mapismo_data', :cartodb_map_id => 0, :cartodb_username => 'blat', :cartodb_userid => 1, :cartodb_auth_token => 'token', :cartodb_auth_secret => 'secret', :latitude => 40.416691, :longitude => -3.700345, :radius => 3500, :start_date => '2011-05-15+00:00:00', :end_date => '2011-05-15+23:59:59', :preview_token => "123abc", :keyword => '15m', :source => 'flickr'})
+      worker_notifier.expects(:notify!).with({:cartodb_table_name => 'mapismo_data', :cartodb_map_id => 0, :cartodb_username => 'blat', :cartodb_userid => 1, :cartodb_auth_token => 'token', :cartodb_auth_secret => 'secret', :latitude => 40.416691, :longitude => -3.700345, :radius => 3500, :start_date => '2011-05-15+00:00:00', :end_date => '2011-05-15+23:59:59', :preview_token => "123abc", :keyword => 'indignados', :source => 'instagram'})
+      worker_notifier.expects(:notify!).with({:cartodb_table_name => 'mapismo_data', :cartodb_map_id => 0, :cartodb_username => 'blat', :cartodb_userid => 1, :cartodb_auth_token => 'token', :cartodb_auth_secret => 'secret', :latitude => 40.416691, :longitude => -3.700345, :radius => 3500, :start_date => '2011-05-15+00:00:00', :end_date => '2011-05-15+23:59:59', :preview_token => "123abc", :keyword => 'indignados', :source => 'flickr'})
+
+      subject.fetch_preview_data!
+
+      subject.preview_token.should == "123abc"
+    end
+  end
+
+  describe "#save" do
     context "when the data is ok and the map is valid" do
       let(:subject) do
         Map.new({
@@ -76,7 +141,8 @@ describe Map do
           lat: 40.416691,
           lon: -3.700345,
           start_date: "2011-05-15+00:00:00",
-          end_date: "2011-05-15+23:59:59"
+          end_date: "2011-05-15+23:59:59",
+          preview_token: "123abc"
         })
       end
 
@@ -117,17 +183,20 @@ describe Map do
           longitude: subject.lon,
           radius: subject.radius,
           start_date: subject.start_date,
-          end_date: subject.end_date
+          end_date: subject.end_date,
+          preview_token: subject.preview_token
         }
         worker_notifier = mock()
         WorkerNotifier.expects(:new).once.returns(worker_notifier)
 
-        worker_notifier.expects(:notify!).with({:cartodb_table_name => 'mapismo_data', :cartodb_map_id => 33, :cartodb_username => 'blat', :cartodb_userid => 1, :cartodb_auth_token => 'token', :cartodb_auth_secret => 'secret', :latitude => 40.416691, :longitude => -3.700345, :radius => 3500, :start_date => '2011-05-15+00:00:00', :end_date => '2011-05-15+23:59:59', :keyword => '15m', :source => 'instagram'})
-        worker_notifier.expects(:notify!).with({:cartodb_table_name => 'mapismo_data', :cartodb_map_id => 33, :cartodb_username => 'blat', :cartodb_userid => 1, :cartodb_auth_token => 'token', :cartodb_auth_secret => 'secret', :latitude => 40.416691, :longitude => -3.700345, :radius => 3500, :start_date => '2011-05-15+00:00:00', :end_date => '2011-05-15+23:59:59', :keyword => '15m', :source => 'flickr'})
-        worker_notifier.expects(:notify!).with({:cartodb_table_name => 'mapismo_data', :cartodb_map_id => 33, :cartodb_username => 'blat', :cartodb_userid => 1, :cartodb_auth_token => 'token', :cartodb_auth_secret => 'secret', :latitude => 40.416691, :longitude => -3.700345, :radius => 3500, :start_date => '2011-05-15+00:00:00', :end_date => '2011-05-15+23:59:59', :keyword => 'indignados', :source => 'instagram'})
-        worker_notifier.expects(:notify!).with({:cartodb_table_name => 'mapismo_data', :cartodb_map_id => 33, :cartodb_username => 'blat', :cartodb_userid => 1, :cartodb_auth_token => 'token', :cartodb_auth_secret => 'secret', :latitude => 40.416691, :longitude => -3.700345, :radius => 3500, :start_date => '2011-05-15+00:00:00', :end_date => '2011-05-15+23:59:59', :keyword => 'indignados', :source => 'flickr'})
+        worker_notifier.expects(:notify!).with({:cartodb_table_name => 'mapismo_data', :cartodb_map_id => 33, :cartodb_username => 'blat', :cartodb_userid => 1, :cartodb_auth_token => 'token', :cartodb_auth_secret => 'secret', :latitude => 40.416691, :longitude => -3.700345, :radius => 3500, :start_date => '2011-05-15+00:00:00', :end_date => '2011-05-15+23:59:59', :preview_token => nil, :keyword => '15m', :source => 'instagram'})
+        worker_notifier.expects(:notify!).with({:cartodb_table_name => 'mapismo_data', :cartodb_map_id => 33, :cartodb_username => 'blat', :cartodb_userid => 1, :cartodb_auth_token => 'token', :cartodb_auth_secret => 'secret', :latitude => 40.416691, :longitude => -3.700345, :radius => 3500, :start_date => '2011-05-15+00:00:00', :end_date => '2011-05-15+23:59:59', :preview_token => nil, :keyword => '15m', :source => 'flickr'})
+        worker_notifier.expects(:notify!).with({:cartodb_table_name => 'mapismo_data', :cartodb_map_id => 33, :cartodb_username => 'blat', :cartodb_userid => 1, :cartodb_auth_token => 'token', :cartodb_auth_secret => 'secret', :latitude => 40.416691, :longitude => -3.700345, :radius => 3500, :start_date => '2011-05-15+00:00:00', :end_date => '2011-05-15+23:59:59', :preview_token => nil, :keyword => 'indignados', :source => 'instagram'})
+        worker_notifier.expects(:notify!).with({:cartodb_table_name => 'mapismo_data', :cartodb_map_id => 33, :cartodb_username => 'blat', :cartodb_userid => 1, :cartodb_auth_token => 'token', :cartodb_auth_secret => 'secret', :latitude => 40.416691, :longitude => -3.700345, :radius => 3500, :start_date => '2011-05-15+00:00:00', :end_date => '2011-05-15+23:59:59', :preview_token => nil, :keyword => 'indignados', :source => 'flickr'})
 
         subject.save
+
+        subject.preview_token.should be_nil
       end
     end
 
@@ -143,7 +212,8 @@ describe Map do
           lat: 40.416691,
           lon: -3.700345,
           start_date: "2011-05-15+00:00:00",
-          end_date: "2011-05-15+23:59:59"
+          end_date: "2011-05-15+23:59:59",
+          preview_token: "123abc"
         })
       end
 
@@ -322,7 +392,8 @@ describe Map do
         lat: 40.416691,
         lon: -3.700345,
         start_date: "2011-05-15+00:00:00",
-        end_date: "2011-05-15+23:59:59"
+        end_date: "2011-05-15+23:59:59",
+        preview_token: "123abc"
       })
     end
 
@@ -374,6 +445,10 @@ describe Map do
 
     it "has an end date" do
       subject.end_date.should == "2011-05-15+23:59:59"
+    end
+
+    it "has a preview token" do
+      subject.preview_token.should == "123abc"
     end
   end
 end

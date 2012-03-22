@@ -134,7 +134,7 @@ describe 'User' do
       cartodb_connection = mock()
       cartodb_connection.stubs(:connection).returns(connection)
       cartodb_connection.expects(:create_table).with('mapismo_maps', 'name varchar, sources varchar, keywords varchar, start_date varchar,end_date varchar, radius integer, location_name varchar, lat float, lon float').once
-      cartodb_connection.stubs(:create_table).with('mapismo_data', 'map_id integer, avatar_url varchar, username varchar, date timestamp,permalink varchar, data varchar, source varchar,source_id varchar', {:privacy => :public, :geometry => 'Point'}).returns(true)
+      cartodb_connection.stubs(:create_table).with('mapismo_data', 'map_id integer, avatar_url varchar, username varchar, date timestamp, permalink varchar, data varchar, source varchar, source_id varchar, preview_token varchar', {:privacy => :public, :geometry => 'Point'}).returns(true)
       cartodb_connection.stubs(:add_index_to_table).returns(true)
       User.any_instance.stubs(:connection).returns(cartodb_connection)
 
@@ -147,11 +147,12 @@ describe 'User' do
       cartodb_connection = mock()
       cartodb_connection.stubs(:connection).returns(connection)
       cartodb_connection.stubs(:create_table).with('mapismo_maps', 'name varchar, sources varchar, keywords varchar, start_date varchar,end_date varchar, radius integer, location_name varchar, lat float, lon float')
-      cartodb_connection.expects(:create_table).with('mapismo_data', 'map_id integer, avatar_url varchar, username varchar, date timestamp,permalink varchar, data varchar, source varchar,source_id varchar', {:privacy => :public, :geometry => 'Point'}).returns(true).once
+      cartodb_connection.expects(:create_table).with('mapismo_data', 'map_id integer, avatar_url varchar, username varchar, date timestamp, permalink varchar, data varchar, source varchar, source_id varchar, preview_token varchar', {:privacy => :public, :geometry => 'Point'}).returns(true).once
       cartodb_connection.expects(:add_index_to_table).with(Mapismo.data_table, "date").once
       cartodb_connection.expects(:add_index_to_table).with(Mapismo.data_table, "map_id").once
       cartodb_connection.expects(:add_index_to_table).with(Mapismo.data_table, "source").once
       cartodb_connection.expects(:add_index_to_table).with(Mapismo.data_table, "source_id").once
+      cartodb_connection.expects(:add_index_to_table).with(Mapismo.data_table, "preview_token").once
       cartodb_connection.expects(:add_index_to_table).with(Mapismo.data_table, "map_id,source,source_id", unique: true).once
       User.any_instance.stubs(:connection).returns(cartodb_connection)
 

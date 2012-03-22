@@ -74,7 +74,7 @@ body, input {
   height: 100%;
   z-index: 10;
 }
-#top_bar, .save_bar, #timeline_bar {
+#top_bar, .save_bar, .progress_bar, #timeline_bar {
   position: absolute;
   background: rgba(48, 48, 48, 0.85);
   top: 6px;
@@ -124,7 +124,7 @@ a.button.disabled, #top_bar a.button.disabled {
 }
 
 /* Save bar */
-.save_bar {
+.save_bar, .progress_bar {
   width: 170px;
   bottom: 12px;
   top: auto;
