@@ -57,11 +57,6 @@ class User
 
     # Create indexes for the table
     connection.add_index_to_table(Mapismo.data_table, "date")
-    connection.add_index_to_table(Mapismo.data_table, "map_id")
-    connection.add_index_to_table(Mapismo.data_table, "source")
-    connection.add_index_to_table(Mapismo.data_table, "source_id")
-    connection.add_index_to_table(Mapismo.data_table, "preview_token")
-    connection.add_index_to_table(Mapismo.data_table, "map_id,source,source_id", unique: true)
 
     # Load demo data
     sql = File.open("db/demo-data.sql").read.gsub(/\n/,'')
