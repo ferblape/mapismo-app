@@ -163,7 +163,7 @@
       // Load the list of features
       $.ajax({
         url: TILEHTTP + '://'+cartodb_params.cartodb_user_name+'.' + SQL_SERVER + global_api_url+ 'sql/?q='+
-              escape('SELECT cartodb_id FROm '+ cartodb_params.cartodb_table_name + ' WHERE map_id=' + map_id + ' AND preview_token IS NULL'),
+              escape('SELECT cartodb_id FROM '+ cartodb_params.cartodb_table_name + ' WHERE map_id=' + map_id + ' AND preview_token IS NULL'),
         type: 'GET',
         dataType: 'jsonp',
         success:function(result){
@@ -191,7 +191,7 @@
       };
 
       // Wax interaction
-      function addCartoDBInteraction(params, infowindow, featureList) {
+      function addCartoDBInteraction(params) {
         var currentCartoDbId,
             tilejson = generateTileJson(params),
             cache_buster = 0;
@@ -224,7 +224,7 @@
         });
 
         var wax_tile = new wax.g.connector(tilejson);
-        params.cartodb_map.overlayMapTypes.insertAt(0,wax_tile);
+        params.cartodb_map.overlayMapTypes.setAt(0,wax_tile);
         var interaction = wax.g.interaction(params.cartodb_map, tilejson, waxOptions);
       };
 
@@ -289,7 +289,7 @@
                 cartodb_params.cartodb_sql = escape('SELECT * FROM <%= Mapismo.data_table %> WHERE map_id=' + map_id + ' AND preview_token=\'' + $('#preview_token').val() + '\'');
                 tilejson = generateTileJson(cartodb_params);
                 wax_tile = new wax.g.connector(tilejson);
-                cartodb_params.cartodb_map.overlayMapTypes.insertAt(0,wax_tile);
+                cartodb_params.cartodb_map.overlayMapTypes.setAt(0,wax_tile);
                 interaction = wax.g.interaction(cartodb_params.cartodb_map, tilejson, waxOptions);
 
                 featureList = [];
@@ -303,6 +303,7 @@
                     result.rows.forEach(function(row){
                       featureList.push(row.cartodb_id);
                     });
+                    infowindow = new CartoDBInfowindow(cartodb_params);
                     // Add wax interaction
                     addCartoDBInteraction(cartodb_params, infowindow, featureList);
                     MAPISMO.newMap.hideProgress();
