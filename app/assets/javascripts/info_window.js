@@ -136,9 +136,11 @@ CartoDBInfowindow.prototype.open = function(feature,latlng,featureList){
     url: TILEHTTP + '://'+ this.params_.cartodb_user_name + '.' + SQL_SERVER + '/api/v1/sql/?q='+escape('select '+that.columns_+' from '+ this.params_.cartodb_table_name + ' where cartodb_id=' + feature)+'&callback=?',
     dataType: 'jsonp',
     success: function(result) {
-      that.updateInfoWindow(result.rows[0], feature);
-      that.updatePagination(feature, featureList);
-      $('#content').show();
+      if(result.rows.length > 0){
+        that.updateInfoWindow(result.rows[0], feature);
+        that.updatePagination(feature, featureList);
+        $('#content').show();
+      }
     },
     error: function(e) {}
   });
