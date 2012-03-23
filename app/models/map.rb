@@ -112,8 +112,7 @@ class Map
       radius: self.radius,
       location_name: self.location_name,
       lat: self.lat,
-      lon: self.lon,
-      preview_token: @preview_token
+      lon: self.lon
     }
 
     connection = self.user.get_connection
@@ -182,7 +181,7 @@ class Map
       radius: self.radius,
       start_date: self.start_date,
       end_date: self.end_date,
-      preview_token: self.preview_token
+      preview_token: @preview_token
     }
     worker_notifier = WorkerNotifier.new
 
