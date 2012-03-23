@@ -30,7 +30,7 @@ class Map
   end
 
   def keywords=(value)
-    value ||= []
+    value = [] if value.blank?
     if value.is_a?(String)
       value = value.split(',').map{ |k| k.strip }.compact.flatten
     end
@@ -185,7 +185,8 @@ class Map
     }
     worker_notifier = WorkerNotifier.new
 
-    self.keywords.each do |k|
+    keywords = self.keywords.blank? ? [""] : self.keywords
+    keywords.each do |k|
       self.sources.each do |s|
         worker_notifier.notify!(base_message.merge(keyword: k, source: s))
       end

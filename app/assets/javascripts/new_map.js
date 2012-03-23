@@ -150,7 +150,7 @@ function newMap(){
 
     enableGoButton: function(){
       $('.progress_bar, .save_bar').hide();
-      if(($('#map_location_name').val().isBlank()) || ($('#map_keywords').val().isBlank()) ||
+      if(($('#map_location_name').val().isBlank()) ||
       ($('.social_networks input:checkbox:checked').length == 0) || ($('#from_day').val().isBlank()) ||
       ($('#to_day').val().isBlank())){
         this.disableGoButton();
@@ -193,9 +193,11 @@ function newMap(){
         }
       }
 
-      parsedValue += " about ";
-      // TODO: the last ',' should be 'and'
-      parsedValue += $('input#map_keywords').val().split(",").join(", ");
+      if(!$('input#map_keywords').val().isBlank()){
+        parsedValue += " about ";
+        // TODO: the last ',' should be 'and'
+        parsedValue += $('input#map_keywords').val().split(",").join(", ");
+      }
 
       this.parentElement().find('a:eq(0)').html(parsedValue);
       this.parentElement().find('a:eq(1)').html($('input#map_location_name').val());
