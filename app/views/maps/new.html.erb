@@ -331,7 +331,7 @@
 
 <%= form_for :map, url: maps_path do |f|%>
 
-<input type="hidden" name="map[preview_token]" id="preview_token" value="<%= rand(36**6).to_s(36) %>" />
+<input type="hidden" name="map[preview_token]" id="preview_token" value="<%= generate_preview_token %>" />
 
 <div class="save_bar" style="display:none">
   Done?

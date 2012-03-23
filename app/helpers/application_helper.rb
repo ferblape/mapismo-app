@@ -23,4 +23,8 @@ module ApplicationHelper
     "https://#{@user.username}.cartodb.com/tables/#{Mapismo.data_table}/embed_map"
   end
 
+  def generate_preview_token
+    rand(36**6).to_s(36)
+  end
+
 end
