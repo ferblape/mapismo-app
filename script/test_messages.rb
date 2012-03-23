@@ -9,13 +9,14 @@ valid_message = {
   cartodb_userid: 33,
   cartodb_auth_token: 'YG7v8YrCbJ6nuHhNkhR9s8r7DtH0iu2WXo5FHszH',
   cartodb_auth_secret: 'mdyHGN3avBUEOzyfEPT23IHCD1jKJdhiSaEJcGE1',
-  source: 'flickr',
+  source: 'instagram',
   keyword: '15m',
-  latitude: 40.416691,
-  longitude: -3.703611,
+  latitude: -34.5920619886973,
+  longitude: -58.43212698298339,
   radius: 5000,
-  start_date: '2011-05-15+00:00:00',
-  end_date: '2011-05-15+23:59:59'
+  start_date: '2012-03-01+00:00:00',
+  end_date: '2012-03-22+23:59:59',
+  preview_token: rand(36**6).to_s(36)
 }.to_json
 
 require 'openssl'
