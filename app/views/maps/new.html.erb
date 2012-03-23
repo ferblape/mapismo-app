@@ -131,9 +131,11 @@
           carto_embed_map.setCenter(fakePosition);
           marker = new google.maps.Marker({ position:position,map:carto_embed_map,draggable:true});
           google.maps.event.addListener(marker,'dragend',function(){
+            $('.popover').hide();
             var latlng = marker.getPosition();
             $('input#map_lat').val(latlng.lat());
             $('input#map_lon').val(latlng.lng());
+            MAPISMO.newMap.enableGoButton();
             carto_embed_map.setCenter(latlng);
             polygonDrawHandler(polygon, latlng);
           });
@@ -308,7 +310,6 @@
                 });
 
               }, 5000);
-              console.log(result);
             }
           });
           e.preventDefault(); e.stopPropagation();
@@ -332,7 +333,7 @@
 
 <input type="hidden" name="map[preview_token]" id="preview_token" value="<%= rand(36**6).to_s(36) %>" />
 
-<div class="save_bar">
+<div class="save_bar" style="display:none">
   Done?
   <a href="#" class="button">Save map</a>
 </div>
@@ -373,9 +374,10 @@
   <div class="location">
     <input id="map_location_name" name="map[location_name]" size="30" type="text" value="" />
   </div>
-  <p id="radius"></p>
 
   <div id="radius-picker"></div>
+
+  <p id="radius"></p>
 
   <input id="map_lat" name="map[lat]" type="hidden" value="39.4702393" />
   <input id="map_lon" name="map[lon]" type="hidden" value="-0.37680490000002465" />

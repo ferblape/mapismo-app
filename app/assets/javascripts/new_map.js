@@ -73,6 +73,7 @@ function newMap(){
         return (element != keyword.trim());
       });
       $('input#map_keywords').val(val);
+      this.enableGoButton();
       this.updateMapBar();
       this.enableKeywordInput();
     },
@@ -148,6 +149,7 @@ function newMap(){
     },
 
     enableGoButton: function(){
+      $('.progress_bar, .save_bar').hide();
       if(($('#map_location_name').val().isBlank()) || ($('#map_keywords').val().isBlank()) ||
       ($('.social_networks input:checkbox:checked').length == 0) || ($('#from_day').val().isBlank()) ||
       ($('#to_day').val().isBlank())){
@@ -170,7 +172,9 @@ function newMap(){
     },
 
     hideProgress: function(){
-      $('.progress_bar').fadeOut('slow');
+      $('.progress_bar').fadeOut('slow', function(){
+        $('.save_bar').fadeIn('slow')
+      });
     },
 
     updateMapBar: function(){
@@ -195,14 +199,6 @@ function newMap(){
 
       this.parentElement().find('a:eq(0)').html(parsedValue);
       this.parentElement().find('a:eq(1)').html($('input#map_location_name').val());
-
-      if(this.readyForSaving()){
-        $('.save_bar').show();
-        $('#top_bar a.button').attr('disabled', null);
-      } else {
-        $('.save_bar').hide();
-        $('#top_bar a.button').attr('disabled', 'disabled');
-      }
 
       var fromDate = this._formatDateShort($('#from_day').datepicker('getDate'));
       var toDate = this._formatDateShort($('#to_day').datepicker('getDate'));
@@ -232,7 +228,6 @@ function newMap(){
 
       $('.popover').hide();
       $('.popover.what').show();
-      $('.save_bar').hide();
 
       // radius slider
       $('#radius-picker').slider({
