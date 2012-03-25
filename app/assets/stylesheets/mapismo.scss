@@ -157,7 +157,6 @@ a.button.disabled, #top_bar a.button.disabled {
   background-position: -80px -228px;
 }
 .pause {
-  left: 84px;
   background-position: -80px -200px;
 }
 a.options {
@@ -184,14 +183,17 @@ a.options {
 }
 #timeline .items li {
   background: #6b6c6d;
-  width: 1px;
+  width: 3px;
   height: 12px;
   position: absolute;
 }
 #timeline .items li.selected {
   background: #FFF;
 }
-
+#timeline .items li#pointer {
+  background: #F00;
+  width: 4px;
+}
 /* Popovers */
 .popover {
   box-shadow:0px 0px 6px #333;

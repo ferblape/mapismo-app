@@ -78,21 +78,25 @@
             cartodb_map         : carto_embed_map,
             cartodb_map_canvas  : 'map_cartodb_container'
           }
-      var infowindow, featureList = [];
-
+      var infowindow = new CartoDBInfowindow(cartodb_params),
+          featureList = [], timedFeatures = [],
+          timeline = new Timeline();
 
       // Load the list of features
       $.ajax({
         url: TILEHTTP + '://'+cartodb_user_name+'.' + SQL_SERVER + global_api_url+ 'sql/?q='+
-              escape('select cartodb_id from '+ cartodb_table_name + ' where map_id=<%= @map.id %>'),
+              escape('SELECT cartodb_id,date FROM '+ cartodb_table_name + ' WHERE map_id='+map_id+' ORDER BY date ASC'),
         type: 'GET',
         dataType: 'jsonp',
         success:function(result){
           result.rows.forEach(function(row){
             featureList.push(row.cartodb_id);
+            timedFeatures.push({id: row.cartodb_id, date: (new Date(row.date.replace('+',' ')).getTime())});
           });
           // Add wax interaction
           addCartoDBInteraction(cartodb_params, infowindow, featureList);
+          // Setup timeline
+          timeline.setupFeatures(timedFeatures, infowindow, featureList);
         }
       });
 
@@ -101,7 +105,6 @@
         var currentCartoDbId,
             tilejson = generateTileJson(params),
             cache_buster = 0;
-        infowindow = new CartoDBInfowindow(params);
 
         $('#content nav.pagination a.prev').on({
           click: function(e){
@@ -128,6 +131,15 @@
             }
             e.preventDefault(); e.stopPropagation();
           }
+        });
+
+        $('#timeline ul.items').on('click', 'li', function(e){
+          if($(this).attr('id') != 'pointer') {
+            $('#timeline ul.items li').removeClass('selected');
+            $(this).addClass('selected');
+            infowindow.open($(this).data('id'),null,featureList);
+          }
+          e.preventDefault(); e.stopPropagation();
         });
 
         var waxOptions = {
@@ -213,17 +225,14 @@
   <input type="hidden" id="current_feature" />
 </div>
 
-<!--
-<div class="popover options">
-  <ul>
-    <li><a href="<%= cartodb_table_link %>">View on CartoDB</a></li>
-    <li><span>Link: <input type="text" value="<%= cartodb_table_link %>"></span></li>
-    <li><span>Embed: <input type="text" value="http://kacmkanvjfblscndv.dvkdvkd"></span></li>
-  </ul>
+<div id="timeline_bar">
+  <a href="#" class="button play">Play</a>
+  <div id="timeline_container">
+    <div id="timeline">
+      <ul class="items"></ul>
+    </div>
+  </div>
 </div>
--->
-
-<!--<div id="timeline"></div>-->
 
 <div id="outer_map_cartodb_container">
   <div id="map_cartodb_container"></div>

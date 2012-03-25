@@ -1,1 +1,2 @@
 //= require cartodb
+//= require timeline
