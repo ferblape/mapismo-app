@@ -19,22 +19,62 @@ function newMap(){
     _formatTimeLong: function(time){
       if(time != null) {
         return '+' + time.getUTCHours() + ':' + time.getUTCMinutes() + ':' + time.getUTCSeconds();
-      } else {
-        return "";
       }
+      return "";
+    },
+
+    _formatDayOrdinal: function(day){
+      var ordinal = "th";
+      if(day == 1) { ordinal = 'st' };
+      if(day == 2) { ordinal = 'nd' };
+      if(day == 3) { ordinal = 'rd' };
+      return day+ordinal;
     },
 
     _formatDateShort: function(date){
       if(date != null) {
-        var day = date.getDate();
-        var ordinal = "th";
-        if(day == 1) { ordinal = 'st' };
-        if(day == 2) { ordinal = 'nd' };
-        if(day == 3) { ordinal = 'rd' };
-        return date.getShortMonthName() + ' ' + day + ordinal;
-      } else {
+        return date.getShortMonthName() + ' ' + this._formatDayOrdinal(date.getDate());
+      }
+      return "";
+    },
+
+    _formatDateRange: function(from, to){
+      if(from == null || to == null){
         return "";
       }
+      console.log("%s - %s", from, to);
+      var showYear = false;
+      var showMonth = false;
+      var showDay = false;
+      if(from.getFullYear() != to.getFullYear()){
+        showYear = true;
+        showMonth = true;
+      } else {
+        if(from.getMonth() != to.getMonth()){
+          showMonth = true;
+          showDay = true;
+        } else {
+          if(from.getDate() != to.getDate()){
+            showDay = true;
+          }
+        }
+      }
+      var result = this._formatDateShort(from);
+      if(showYear) {
+        result += " " + from.getFullYear();
+      }
+      if(showMonth || showDay) {
+        result += ' - ';
+      }
+      if(showMonth){
+        result += ' ' + this._formatDateShort(to);
+      } else {
+        if(showDay){
+          result += ' ' + this._formatDayOrdinal(to.getDate());
+        }
+      }
+      result += " " + to.getFullYear();
+      return result;
     },
 
     parentElement: function(){
@@ -199,12 +239,11 @@ function newMap(){
         parsedValue += $('input#map_keywords').val().split(",").join(", ");
       }
 
+      // Where
       this.parentElement().find('a:eq(0)').html(parsedValue);
       this.parentElement().find('a:eq(1)').html($('input#map_location_name').val());
-
-      var fromDate = this._formatDateShort($('#from_day').datepicker('getDate'));
-      var toDate = this._formatDateShort($('#to_day').datepicker('getDate'));
-      this.parentElement().find('a:eq(2)').html(fromDate + ' - ' + toDate);
+      // When
+      this.parentElement().find('a:eq(2)').html(this._formatDateRange($('#from_day').datepicker('getDate'), $('#to_day').datepicker('getDate')));
 
       this.updatePopoverPositions();
 
