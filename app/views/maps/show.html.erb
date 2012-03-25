@@ -133,13 +133,12 @@
           }
         });
 
-        $('#timeline ul.items').on('click', 'li', function(e){
-          if($(this).attr('id') != 'pointer') {
-            $('#timeline ul.items li').removeClass('selected');
-            $(this).addClass('selected');
-            infowindow.open($(this).data('id'),null,featureList);
+        $('#timeline').on({
+          'click': function(e){
+            timeline.pause();
+            timeline.setPointer(e.clientX - $(this).position().left - 2);
+            e.preventDefault(); e.stopPropagation();
           }
-          e.preventDefault(); e.stopPropagation();
         });
 
         var waxOptions = {

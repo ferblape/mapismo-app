@@ -7,20 +7,26 @@ Timeline.prototype.initDOM = function(){
   var that = this;
   $('#timeline_bar').on('click', 'a.play', function(e){
     that.start();
-    $(this).removeClass('play').addClass('pause').html('Pause');
     e.preventDefault; e.stopPropagation();
   });
   $('#timeline_bar').on('click', 'a.pause', function(e){
     that.pause();
-    $(this).addClass('play').removeClass('pause').html('Play');
     e.preventDefault; e.stopPropagation();
+  });
+
+  // handle keyboard strokes
+  $(document).keyup(function(e) {
+    // space bar
+    if(e.keyCode == 32) {
+      that.playOrPause();
+      e.preventDefault(); e.stopPropagation();
+    }
   });
 }
 
 Timeline.prototype.setupFeatures = function(features,infowindow,featureList){
   this.infowindow = infowindow;
   this.featureList = featureList;
-  console.log(this.infowindow);
   this.features = features;
   var that = this;
   var minDate = features[0].date,
@@ -45,6 +51,8 @@ Timeline.prototype.setupFeatures = function(features,infowindow,featureList){
 };
 
 Timeline.prototype.start = function(){
+  $('#timeline_bar a.button').removeClass('play').addClass('pause').html('Pause');
+
   this.state = "playing";
   var that = this;
   this.timer = setInterval(function(){
@@ -53,18 +61,35 @@ Timeline.prototype.start = function(){
     if(newPosition >= $('#timeline').width() - $('#pointer').width()){
       clearInterval(that.timer);
     }
-    var featureId = that.featurePositionsInPx[(newPosition).toString()];
-    if(featureId != null){
-      that.infowindow.open(featureId,null,that.featureList);
-      $('#timeline ul.items li').removeClass('selected');
-      $('#timeline ul.items li[data-id='+featureId+']').addClass('selected');
-    }
+    that.triggerClick(newPosition);
   }, 300);
 };
 
 Timeline.prototype.pause = function(){
+  $('#timeline_bar a.button').addClass('play').removeClass('pause').html('Play');
   this.state = "paused;"
   clearInterval(this.timer);
 };
 
+Timeline.prototype.playOrPause = function(){
+  if(this.state == "playing"){
+    this.pause();
+  } else {
+    this.start();
+  }
+};
+
+Timeline.prototype.setPointer = function(position){
+  $('#pointer').css('left', position + 'px');
+  this.triggerClick(position);
+};
+
+Timeline.prototype.triggerClick = function(position){
+  var featureId = this.featurePositionsInPx[(position).toString()];
+  if(featureId != null){
+    this.infowindow.open(featureId,null,this.featureList);
+    $('#timeline ul.items li').removeClass('selected');
+    $('#timeline ul.items li[data-id='+featureId+']').addClass('selected');
+  }
+};
 
