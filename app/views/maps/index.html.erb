@@ -7,3 +7,5 @@
   <li><%= link_to(map.name, map_path(current_user.id, map.id)) %></li>
 <% end %>
 </ul>
+
+<p><%= link_to("Create a new map +", new_map_path) %></p>
