@@ -157,9 +157,8 @@ class Map
   def validate_date(value)
     value = value.to_s
     unless value.blank?
-      raise "Invalid format" if value !~ /\d{4}-\d{1,2}-\d{1,2}\+\d{1,2}:\d{1,2}:\d{1,2}/
       begin
-        Time.parse(value)
+        value = Time.parse(value)
       rescue
         raise "Invalid date"
       end
@@ -179,8 +178,8 @@ class Map
       latitude: self.lat,
       longitude: self.lon,
       radius: self.radius,
-      start_date: self.start_date,
-      end_date: self.end_date,
+      start_date: self.start_date.strftime("%Y-%m-%d+%H:%M:%S"),
+      end_date: self.end_date.strftime("%Y-%m-%d+%H:%M:%S"),
       preview_token: @preview_token
     }
     worker_notifier = WorkerNotifier.new
@@ -188,7 +187,18 @@ class Map
     keywords = self.keywords.blank? ? [""] : self.keywords
     keywords.each do |k|
       self.sources.each do |s|
-        worker_notifier.notify!(base_message.merge(keyword: k, source: s))
+        case s
+          when 'instagram'
+            if @preview_token.blank?
+              DateRangifier.new(self.start_date, self.end_date).range.each do |dates_range|
+                worker_notifier.notify!(base_message.merge(keyword: k, source: s, start_date: dates_range[0].strftime("%Y-%m-%d+%H:%M:%S"), end_date: dates_range[1].strftime("%Y-%m-%d+%H:%M:%S")))
+              end
+            else
+              worker_notifier.notify!(base_message.merge(keyword: k, source: s))
+            end
+          when 'flickr'
+            worker_notifier.notify!(base_message.merge(keyword: k, source: s))
+          end
       end
     end
   end

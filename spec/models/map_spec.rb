@@ -49,8 +49,8 @@ describe Map do
         map.id.should == 15
         map.sources.should == %W{ instagram flickr }
         map.keywords.should == %W{ 15m indignados }
-        map.start_date.should == "2011-12-03+13:45:00"
-        map.end_date.should ==  "2011-12-03+14:45:00"
+        map.start_date.should == Time.local(2011,12,3,13,45,0)
+        map.end_date.should ==  Time.local(2011,12,3,14,45,0)
         map.radius.should == 2_500
       end
 
@@ -129,13 +129,13 @@ describe Map do
   end
 
   describe "#save" do
-    context "when the data is ok and the map is valid" do
+    context "when the data is from flickr and the map is valid" do
       let(:subject) do
         Map.new({
           name: "15M in Madrid",
           user_id: 1,
           keywords: ["15m", "indignados"],
-          sources: ["instagram", "flickr"],
+          sources: ["flickr"],
           radius: 3500,
           location_name: "Madrid",
           lat: 40.416691,
@@ -189,9 +189,7 @@ describe Map do
         worker_notifier = mock()
         WorkerNotifier.expects(:new).once.returns(worker_notifier)
 
-        worker_notifier.expects(:notify!).with({:cartodb_table_name => 'mapismo_data', :cartodb_map_id => 33, :cartodb_username => 'blat', :cartodb_userid => 1, :cartodb_auth_token => 'token', :cartodb_auth_secret => 'secret', :latitude => 40.416691, :longitude => -3.700345, :radius => 3500, :start_date => '2011-05-15+00:00:00', :end_date => '2011-05-15+23:59:59', :preview_token => nil, :keyword => '15m', :source => 'instagram'})
         worker_notifier.expects(:notify!).with({:cartodb_table_name => 'mapismo_data', :cartodb_map_id => 33, :cartodb_username => 'blat', :cartodb_userid => 1, :cartodb_auth_token => 'token', :cartodb_auth_secret => 'secret', :latitude => 40.416691, :longitude => -3.700345, :radius => 3500, :start_date => '2011-05-15+00:00:00', :end_date => '2011-05-15+23:59:59', :preview_token => nil, :keyword => '15m', :source => 'flickr'})
-        worker_notifier.expects(:notify!).with({:cartodb_table_name => 'mapismo_data', :cartodb_map_id => 33, :cartodb_username => 'blat', :cartodb_userid => 1, :cartodb_auth_token => 'token', :cartodb_auth_secret => 'secret', :latitude => 40.416691, :longitude => -3.700345, :radius => 3500, :start_date => '2011-05-15+00:00:00', :end_date => '2011-05-15+23:59:59', :preview_token => nil, :keyword => 'indignados', :source => 'instagram'})
         worker_notifier.expects(:notify!).with({:cartodb_table_name => 'mapismo_data', :cartodb_map_id => 33, :cartodb_username => 'blat', :cartodb_userid => 1, :cartodb_auth_token => 'token', :cartodb_auth_secret => 'secret', :latitude => 40.416691, :longitude => -3.700345, :radius => 3500, :start_date => '2011-05-15+00:00:00', :end_date => '2011-05-15+23:59:59', :preview_token => nil, :keyword => 'indignados', :source => 'flickr'})
 
         subject.save
@@ -200,6 +198,78 @@ describe Map do
       end
     end
 
+    context "when the data is from instagram and the map is valid" do
+      let(:subject) do
+        Map.new({
+          name: "15M in Madrid",
+          user_id: 1,
+          keywords: ["15m", "indignados"],
+          sources: ["instagram"],
+          radius: 3500,
+          location_name: "Madrid",
+          lat: 40.416691,
+          lon: -3.700345,
+          start_date: "2011-05-10+05:00:00",
+          end_date: "2011-05-15+18:50:00",
+          preview_token: "123abc"
+        })
+      end
+
+      before do
+        connection = mock()
+        connection.expects(:insert_row).once.returns(true)
+        connection.expects(:get_id_from_last_record).with(Mapismo.maps_table).once.returns(33)
+
+        user = mock()
+        user.stubs(:id).returns(1)
+        user.stubs(:username).returns('blat')
+        user.stubs(:token).returns('token')
+        user.stubs(:secret).returns('secret')
+        user.stubs(:get_connection).returns(connection)
+
+        Map.any_instance.stubs(:id).returns(33)
+        Map.any_instance.stubs(:user).returns(user)
+      end
+
+      it "should notify the workers" do
+        base_message = {
+          cartodb_table_name: Mapismo.data_table,
+          cartodb_map_id: subject.id,
+          cartodb_username: subject.user.username,
+          cartodb_userid: subject.user_id,
+          cartodb_auth_token: subject.user.token,
+          cartodb_auth_secret: subject.user.secret,
+          latitude: subject.lat,
+          longitude: subject.lon,
+          radius: subject.radius,
+          start_date: subject.start_date,
+          end_date: subject.end_date,
+          preview_token: subject.preview_token
+        }
+        worker_notifier = mock()
+        WorkerNotifier.expects(:new).once.returns(worker_notifier)
+
+        base_parameters = {
+          :cartodb_table_name => 'mapismo_data', :cartodb_map_id => 33, :cartodb_username => 'blat',
+          :cartodb_userid => 1, :cartodb_auth_token => 'token', :cartodb_auth_secret => 'secret',
+          :latitude => 40.416691, :longitude => -3.700345, :radius => 3500,
+          :preview_token => nil, :source => 'instagram'
+        }
+
+        DateRangifier.new(Time.local(2011,05,10,05,00,00), Time.local(2011,05,15,18,50,00)).range.each do |dates_range|
+          ['15m', 'indignados'].each do |keyword|
+            worker_notifier.expects(:notify!).with(base_parameters.merge({
+              keyword: keyword, start_date: dates_range[0].strftime("%Y-%m-%d+%H:%M:%S"),
+              end_date: dates_range[1].strftime("%Y-%m-%d+%H:%M:%S")
+            }))
+          end
+        end
+
+        subject.save
+
+        subject.preview_token.should be_nil
+      end
+    end
     context "when the data is wrong" do
       let(:subject) do
         Map.new({
@@ -344,7 +414,7 @@ describe Map do
 
     it "should set a valid date as string" do
       subject.start_date = "2011-12-01+23:50:00"
-      subject.start_date.should == "2011-12-01+23:50:00"
+      subject.start_date.should == Time.local(2011,12,1,23,50,0)
     end
   end
 
@@ -370,7 +440,7 @@ describe Map do
 
     it "should set a valid date as string" do
       subject.end_date = "2011-12-01+23:50:00"
-      subject.end_date.should == "2011-12-01+23:50:00"
+      subject.end_date.should == Time.local(2011,12,1,23,50,0)
     end
   end
 
@@ -440,11 +510,11 @@ describe Map do
     end
 
     it "has a start date" do
-      subject.start_date.should == "2011-05-15+00:00:00"
+      subject.start_date.should == Time.local(2011,5,15,0,0,0)
     end
 
     it "has an end date" do
-      subject.end_date.should == "2011-05-15+23:59:59"
+      subject.end_date.should == Time.local(2011,5,15,23,59,59)
     end
 
     it "has a preview token" do
