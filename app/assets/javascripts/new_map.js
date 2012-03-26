@@ -42,7 +42,6 @@ function newMap(){
       if(from == null || to == null){
         return "";
       }
-      console.log("%s - %s", from, to);
       var showYear = false;
       var showMonth = false;
       var showDay = false;

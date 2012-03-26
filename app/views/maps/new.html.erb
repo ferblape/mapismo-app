@@ -7,6 +7,8 @@
   <%= javascript_include_tag "//cartodb.s3.amazonaws.com/embed/wax.g.js" %>
 
   <script type="text/javascript">
+
+    // Setup variables
     var cartodb_table_name  = "<%= Mapismo.data_table %>",
         cartodb_table_id    = "<%= current_user.data_table_id %>",
         cartodb_user_name   = "<%= current_user.username %>",
@@ -32,17 +34,20 @@
       // Init the map
       carto_embed_map = new google.maps.Map(document.getElementById("map_cartodb_container"),cartodbMapOptions);
 
+      // Init a geocoder
+      geocoder = new google.maps.Geocoder();
+
       // Close any popover when clicking the map
       google.maps.event.addListener(carto_embed_map, 'click', function() {
         $('.popover').hide();
       });
 
+      // Init values in the form of new map
       MAPISMO.newMap.initMapValues();
+      // Init the DOM for the form
       MAPISMO.newMap.initDOM();
-      geocoder = new google.maps.Geocoder();
 
-      // On changing the location of the map
-      // center the map, move the marker, and update
+      // On changing the location of the map center the map, move the marker, and update
       // latitude and longitude hidden fields
       $('input#map_location_name').on({
         change: function(e){
@@ -94,7 +99,7 @@
         }
       });
 
-      // Setup your map styles
+      // Load map styles
       $.ajax({
         url:TILEHTTP + '://' + cartodb_user_name + '.' + TILESERVER + '/tiles/' + cartodb_table_name + '/map_metadata',
         type: 'GET',
@@ -113,9 +118,6 @@
             // Get coordinates and zoom
             if (map_style.zoom && map_style.longitude && map_style.latitude) {
               carto_embed_map.setZoom(map_style.zoom);
-              // var position = new google.maps.LatLng(map_style.latitude,map_style.longitude);
-            } else {
-              // getCartoDBBBox(null, carto_embed_map);
             }
           } else {
             // getCartoDBBBox(null, carto_embed_map);
@@ -124,12 +126,17 @@
             map_style.google_maps_customization_style = [ { stylers: [ { saturation: -65 }, { gamma: 1.52 } ] }, { featureType: "administrative", stylers: [ { saturation: -95 },{ gamma: 2.26 } ] }, { featureType: "water", elementType: "labels", stylers: [ { visibility: "off" } ] }, { featureType: "administrative.locality", stylers: [ { visibility: 'off' } ] }, { featureType: "road", stylers: [ { visibility: "simplified" }, { saturation: -99 }, { gamma: 2.22 } ] }, { featureType: "poi", elementType: "labels", stylers: [ { visibility: "off" } ] }, { featureType: "road.arterial", stylers: [ { visibility: 'off' } ] }, { featureType: "road.local", elementType: "labels", stylers: [ { visibility: 'off' } ] }, { featureType: "transit", stylers: [ { visibility: 'off' } ] }, { featureType: "road", elementType: "labels", stylers: [ { visibility: 'off' } ] },{ featureType: "poi", stylers: [ { saturation: -55 } ] } ];
           }
 
+          // Force zoom to 15
           carto_embed_map.setZoom(15);
+          // Get the center and place a marker
           var position = new google.maps.LatLng($('#map_lat').val(),$('#map_lon').val());
-          // Center the map a bit in the south
+          marker = new google.maps.Marker({ position:position,map:carto_embed_map,draggable:true});
+
+          // Center the map a bit in the south of the marker
           var fakePosition = new google.maps.LatLng(parseFloat($('#map_lat').val()) + 0.0025,$('#map_lon').val());
           carto_embed_map.setCenter(fakePosition);
-          marker = new google.maps.Marker({ position:position,map:carto_embed_map,draggable:true});
+
+          // When moving the marker...
           google.maps.event.addListener(marker,'dragend',function(){
             $('.popover').hide();
             var latlng = marker.getPosition();
@@ -139,6 +146,7 @@
             carto_embed_map.setCenter(latlng);
             polygonDrawHandler(polygon, latlng);
           });
+
           polygon = polygonDrawHandler(polygon, position);
 
           // Custom tiles
@@ -158,7 +166,7 @@
             cartodb_map_canvas  : 'map_cartodb_container'
           }
       var infowindow = new CartoDBInfowindow(cartodb_params),
-          featureList = [];
+          featureList = [], waxOptions;
 
       // Load the list of features
       $.ajax({
@@ -175,7 +183,7 @@
         }
       });
 
-      var waxOptions = {
+      waxOptions = {
         callbacks: {
           out: function(){
             cartodb_params.cartodb_map.setOptions({draggableCursor: 'default'});
@@ -223,9 +231,8 @@
           }
         });
 
-        var wax_tile = new wax.g.connector(tilejson);
-        params.cartodb_map.overlayMapTypes.setAt(0,wax_tile);
-        var interaction = wax.g.interaction(params.cartodb_map, tilejson, waxOptions);
+        params.cartodb_map.overlayMapTypes.setAt(0,new wax.g.connector(tilejson));
+        wax.g.interaction(params.cartodb_map, tilejson, waxOptions);
       };
 
       // Zoom bindings
@@ -264,11 +271,43 @@
         };
       };
 
+      function loadPreviewFeatures(){
+        cartodb_params.cartodb_sql = escape('SELECT * FROM <%= Mapismo.data_table %> WHERE map_id=' + map_id + ' AND preview_token=\'' + $('#preview_token').val() + '\'');
+        tilejson = generateTileJson(cartodb_params);
+        cartodb_params.cartodb_map.overlayMapTypes.setAt(0,new wax.g.connector(tilejson));
+        wax.g.interaction(cartodb_params.cartodb_map, tilejson, waxOptions);
+
+        // Relooad the list of features
+        featureList = [];
+        $.ajax({
+          url: TILEHTTP + '://'+cartodb_params.cartodb_user_name+'.' + SQL_SERVER + global_api_url+ 'sql/?q='+
+                escape('SELECT cartodb_id FROM <%= Mapismo.data_table %> WHERE map_id=' + map_id + ' AND preview_token=\'' + $('#preview_token').val() + '\''),
+          type: 'GET',
+          dataType: 'jsonp',
+          success:function(result){
+            result.rows.forEach(function(row){
+              featureList.push(row.cartodb_id);
+            });
+            infowindow = new CartoDBInfowindow(cartodb_params);
+            // Add wax interaction
+            addCartoDBInteraction(cartodb_params, infowindow, featureList);
+            MAPISMO.newMap.hideProgress();
+          }
+        });
+      }
+
+      // Behaviour for 'Go' button, the button that previews data:
+      // An ajax query is performed, which loads features in CartoDB
+      // Then, we wait for a time untile those features are loaded
       $('#top_bar a.button').on({
         click: function(e){
           if($(this).is(':disabled')){
             return false;
           }
+          // Hide all popovers
+          $('.popover').hide();
+
+          // Get data from the form
           var mapData = {};
           $('form input').each(function(){
             mapData[this.name] = $(this).val();
@@ -277,42 +316,24 @@
           $('.social_networks input:checkbox:checked').each(function(){
             mapData['map[sources][]'].push($(this).val());
           });
-          $('.popover').hide();
+          // Show progress status
           MAPISMO.newMap.showProgress();
+
+          // Submit form data
           $.ajax({
             url: $(this).attr('href'),
             type: 'POST',
             data: mapData,
             dataType: 'script',
             success:function(result){
-              setTimeout(function(){
-                cartodb_params.cartodb_sql = escape('SELECT * FROM <%= Mapismo.data_table %> WHERE map_id=' + map_id + ' AND preview_token=\'' + $('#preview_token').val() + '\'');
-                tilejson = generateTileJson(cartodb_params);
-                wax_tile = new wax.g.connector(tilejson);
-                cartodb_params.cartodb_map.overlayMapTypes.setAt(0,wax_tile);
-                interaction = wax.g.interaction(cartodb_params.cartodb_map, tilejson, waxOptions);
-
-                featureList = [];
-                // Load the list of features
-                $.ajax({
-                  url: TILEHTTP + '://'+cartodb_params.cartodb_user_name+'.' + SQL_SERVER + global_api_url+ 'sql/?q='+
-                        escape('SELECT cartodb_id FROM <%= Mapismo.data_table %> WHERE map_id=' + map_id + ' AND preview_token=\'' + $('#preview_token').val() + '\''),
-                  type: 'GET',
-                  dataType: 'jsonp',
-                  success:function(result){
-                    result.rows.forEach(function(row){
-                      featureList.push(row.cartodb_id);
-                    });
-                    infowindow = new CartoDBInfowindow(cartodb_params);
-                    // Add wax interaction
-                    addCartoDBInteraction(cartodb_params, infowindow, featureList);
-                    MAPISMO.newMap.hideProgress();
-                  }
-                });
-
-              }, 5000);
+              // FIXME
+              // When return, wait for n seconds to be sure to have features loaded
+              setTimeout(function(){ loadPreviewFeatures();}, 3000);
+              setTimeout(function(){ loadPreviewFeatures();}, 6000);
+              setTimeout(function(){ loadPreviewFeatures();}, 10000);
             }
           });
+
           e.preventDefault(); e.stopPropagation();
         }
       });
