@@ -32,16 +32,16 @@ module MapismoApp
     config.assets.enabled = true
 
     # Precompiled javascripts
-    config.assets.precompile += ['map.js']
+    config.assets.precompile += ['new_map.js', 'show_map.js']
 
     # Version of your assets, change this if you want to expire all your assets
     config.assets.version = '1.0'
-    
+
     config.middleware.use OmniAuth::Builder do
-      provider OmniAuth::Strategies::CartoDb, Mapismo.consumer_key, Mapismo.consumer_secret, 
+      provider OmniAuth::Strategies::CartoDb, Mapismo.consumer_key, Mapismo.consumer_secret,
              client_options: {site: Mapismo.cartodb_oauth_endpoint(Mapismo.cartodb_username)}, name: "cartodb"
     end
-    
+
     config.generators do |g|
       g.orm             nil
       g.template_engine :erb
@@ -50,7 +50,7 @@ module MapismoApp
       g.javascripts     false
       g.helpers         false
     end
-    
+
   end
 end
 

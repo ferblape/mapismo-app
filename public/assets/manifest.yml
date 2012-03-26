@@ -4,4 +4,6 @@ rails.png: rails-782b548cc1ba7f898cdad2d9eb8420d2.png
 sprites.png: sprites-94d25ee97093813c0202d25ffd5be1e8.png
 sprites.psd: sprites-e07322a4495ab1bf387a5a58006ff860.psd
 application.js: application-c2e5f9eded03564d34c1b9340bb81db7.js
+new_map.js: new_map-bcb7bce496495c394ed3e278ea242e5b.js
+show_map.js: show_map-9f96fbe1c3668b82fd9fe74c90c1d650.js
 application.css: application-6d60c3ede8c0ed1980404332abf4adba.css
