@@ -10,7 +10,7 @@ function newMap(){
 
     _formatDateLong: function(date){
       if(date != null) {
-        return date.getFullYear() + '-' + parseInt(date.getMonth()+1) + '-' + date.getDate();
+        return date.getUTCFullYear() + '-' + parseInt(date.getUTCMonth()+1) + '-' + date.getUTCDate();
       } else {
         return "";
       }
@@ -18,7 +18,7 @@ function newMap(){
 
     _formatTimeLong: function(time){
       if(time != null) {
-        return '+' + time.getUTCHours() + ':' + time.getUTCMinutes() + ':' + time.getUTCSeconds();
+        return '+' + time.getHours() + ':' + time.getMinutes() + ':' + time.getSeconds();
       }
       return "";
     },
@@ -33,7 +33,7 @@ function newMap(){
 
     _formatDateShort: function(date){
       if(date != null) {
-        return date.getShortMonthName() + ' ' + this._formatDayOrdinal(date.getDate());
+        return date.getShortMonthName() + ' ' + this._formatDayOrdinal(date.getUTCDate());
       }
       return "";
     },
@@ -45,22 +45,22 @@ function newMap(){
       var showYear = false;
       var showMonth = false;
       var showDay = false;
-      if(from.getFullYear() != to.getFullYear()){
+      if(from.getUTCFullYear() != to.getUTCFullYear()){
         showYear = true;
         showMonth = true;
       } else {
-        if(from.getMonth() != to.getMonth()){
+        if(from.getUTCMonth() != to.getUTCMonth()){
           showMonth = true;
           showDay = true;
         } else {
-          if(from.getDate() != to.getDate()){
+          if(from.getUTCDate() != to.getUTCDate()){
             showDay = true;
           }
         }
       }
       var result = this._formatDateShort(from);
       if(showYear) {
-        result += " " + from.getFullYear();
+        result += " " + from.getUTCFullYear();
       }
       if(showMonth || showDay) {
         result += ' - ';
@@ -69,10 +69,10 @@ function newMap(){
         result += ' ' + this._formatDateShort(to);
       } else {
         if(showDay){
-          result += ' ' + this._formatDayOrdinal(to.getDate());
+          result += ' ' + this._formatDayOrdinal(to.getUTCDate());
         }
       }
-      result += " " + to.getFullYear();
+      result += " " + to.getUTCFullYear();
       return result;
     },
 
@@ -315,7 +315,7 @@ function newMap(){
       // Time pickers
       $("#from_time, #to_time").timePicker();
       $.timePicker("#from_time").setTime('00:00');
-      $.timePicker("#to_time").setTime('00:00');
+      $.timePicker("#to_time").setTime('23:59');
 
       $("#from_time, #to_time").on({
         change: function(){

@@ -397,8 +397,8 @@ describe Map do
 
     it "should only accepts strings in a valid format" do
       lambda {
-        subject.start_date = "2011-01-01"
-      }.should raise_error("Invalid format")
+        subject.start_date = "2011-13-01"
+      }.should raise_error("Invalid date")
     end
 
     it "should only accepts valid dates" do
@@ -423,8 +423,8 @@ describe Map do
 
     it "should only accepts strings in a valid format" do
       lambda {
-        subject.end_date = "2011-01-01"
-      }.should raise_error("Invalid format")
+        subject.end_date = "2011-13-01"
+      }.should raise_error("Invalid date")
     end
 
     it "should only accepts valid dates" do
