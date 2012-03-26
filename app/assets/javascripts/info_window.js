@@ -102,7 +102,7 @@ CartoDBInfowindow.prototype.updateInfoWindow = function(row, feature){
   $('#current_feature').val(feature);
   $('#content .item_data img').attr('src', row.avatar_url);
   $('#content .item_data p strong').html(row.username);
-  $('#content .item_data p span.date').html(row.date);
+  $('#content .item_data p span.date').html(this._formatDate(row.date));
   $('#content .item_data p a').html(row.source.capitaliseFirstLetter());
   $('#content .item_data p a').attr('href', row.permalink);
   var content = $('#content .content');
@@ -184,4 +184,10 @@ CartoDBInfowindow.prototype.isVisible = function(marker_id) {
   } else {
     return false;
   }
+}
+
+CartoDBInfowindow.prototype._formatDate = function(date) {
+  date = new Date(date);
+  return date.getFullYear() + '-' + parseInt(date.getMonth()+1) + '-' + date.getDate() +
+         ' ' + date.getUTCHours() + ':' + date.getUTCMinutes() + ':' + date.getUTCSeconds();
 }
