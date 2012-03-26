@@ -50,7 +50,6 @@
             // Get coordinates and zoom
             if (map_style.zoom && map_style.longitude && map_style.latitude) {
               carto_embed_map.setZoom(map_style.zoom);
-              // carto_embed_map.setCenter(new google.maps.LatLng(map_style.latitude,map_style.longitude));
             } else {
               getCartoDBBBox(map_id, carto_embed_map);
             }
@@ -77,28 +76,41 @@
             cartodb_table_id    : cartodb_table_id,
             cartodb_map         : carto_embed_map,
             cartodb_map_canvas  : 'map_cartodb_container'
-          }
-      var infowindow = new CartoDBInfowindow(cartodb_params),
+          },
+          infowindow = new CartoDBInfowindow(cartodb_params),
           featureList = [], timedFeatures = [],
           timeline = new Timeline();
 
-      // Load the list of features
-      $.ajax({
-        url: TILEHTTP + '://'+cartodb_user_name+'.' + SQL_SERVER + global_api_url+ 'sql/?q='+
-              escape('SELECT cartodb_id,date FROM '+ cartodb_table_name + ' WHERE map_id='+map_id+' ORDER BY date ASC'),
-        type: 'GET',
-        dataType: 'jsonp',
-        success:function(result){
-          result.rows.forEach(function(row){
-            featureList.push(row.cartodb_id);
-            timedFeatures.push({id: row.cartodb_id, date: (new Date(row.date.replace('+',' ')).getTime())});
-          });
-          // Add wax interaction
-          addCartoDBInteraction(cartodb_params, infowindow, featureList);
-          // Setup timeline
-          timeline.setupFeatures(timedFeatures, infowindow, featureList);
-        }
-      });
+      loadFeatures();
+
+      function loadFeatures(){
+        // Load the list of features
+        $.ajax({
+          url: TILEHTTP + '://'+cartodb_user_name+'.' + SQL_SERVER + global_api_url+ 'sql/?q='+
+                escape('SELECT cartodb_id,date FROM '+ cartodb_table_name + ' WHERE map_id='+map_id+' ORDER BY date ASC'),
+          type: 'GET',
+          dataType: 'jsonp',
+          success:function(result){
+            if(result.rows.length > 0){
+              $('.progress_bar').hide();
+              $('#timeline_bar').show();
+              result.rows.forEach(function(row){
+                featureList.push(row.cartodb_id);
+                timedFeatures.push({id: row.cartodb_id, date: (new Date(row.date.replace('+',' ')).getTime())});
+              });
+              // Add wax interaction
+              addCartoDBInteraction(cartodb_params, infowindow, featureList);
+
+              // Setup timeline
+              timeline.setupFeatures(timedFeatures, infowindow, featureList);
+            } else {
+              $('.progress_bar').show();
+              $('#timeline_bar').hide();
+              setTimeout(loadFeatures(), 3000);
+            }
+          }
+        });
+      }
 
       // Wax interaction
       function addCartoDBInteraction(params, infowindow, featureList) {
@@ -205,6 +217,10 @@
   <h1>This is a map with <%= @map.name %></h1>
 </header>
 
+<div class="progress_bar" style="display:none">
+  Still fetching data...
+</div>
+
 <div class="popover" id="content" style="display:none">
   <div class="header">
     <nav class="pagination">
@@ -224,7 +240,7 @@
   <input type="hidden" id="current_feature" />
 </div>
 
-<div id="timeline_bar">
+<div id="timeline_bar" style="display:none">
   <a href="#" class="button play">Play</a>
   <div id="timeline_container">
     <div id="timeline">
