@@ -37,5 +37,9 @@ MapismoApp::Application.configure do
 end
 
 require Rails.root.join("spec/support/stubs/redis_mock.rb")
-$redis = RedisMock.new
+
+# Uncomment to use a mock of Redis (a kind of Redis in memory)
+# $redis = RedisMock.new
+
+# Use the real Redis
 $redis = Redis.new
