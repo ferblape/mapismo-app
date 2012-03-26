@@ -42,7 +42,7 @@ class Mapismo
   end
 
   def self.cartodb_oauth_endpoint(username)
-    "https://#{username}.cartodb.com"
+    "https://cartodb.com"
   end
 
   def self.cartodb_api_endpoint
