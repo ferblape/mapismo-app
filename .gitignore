@@ -7,7 +7,6 @@ bin/
 db/test_structure.sql
 config/database.yml
 public/cache
-public/assets
 public/images
 .DS_Store
 db/schema.rb
