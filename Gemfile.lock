@@ -61,6 +61,11 @@ GEM
     ffi (1.0.11)
     git (1.2.5)
     hashie (1.2.0)
+    heroku (2.22.0)
+      launchy (>= 0.3.2)
+      netrc (~> 0.7.1)
+      rest-client (~> 1.6.1)
+      rubyzip
     hike (1.2.1)
     i18n (0.6.0)
     jar_wrapper (0.1.2)
@@ -89,6 +94,7 @@ GEM
     mocha (0.10.5)
       metaclass (~> 0.0.1)
     multi_json (1.1.0)
+    netrc (0.7.1)
     nokogiri (1.5.2)
     oauth (0.4.5)
     omniauth (1.0.3)
@@ -124,6 +130,8 @@ GEM
     rdoc (3.12)
       json (~> 1.4)
     redis (2.2.2)
+    rest-client (1.6.7)
+      mime-types (>= 1.16)
     rspec (2.8.0)
       rspec-core (~> 2.8.0)
       rspec-expectations (~> 2.8.0)
@@ -183,6 +191,7 @@ PLATFORMS
 DEPENDENCIES
   capybara
   coffee-rails (~> 3.2.1)
+  heroku
   jquery-rails
   launchy
   mocha

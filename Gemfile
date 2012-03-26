@@ -4,6 +4,7 @@ gem "rails", "3.2.2"
 gem "jquery-rails"
 gem "omniauth-oauth"
 gem "redis"
+gem "heroku"
 
 group :assets do
   gem "sass-rails",   "~> 3.2.3"
